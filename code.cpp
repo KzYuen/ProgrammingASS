@@ -36,6 +36,48 @@ int studentCount = 0;
 int appsCount = 0;
 int adminCount = 0;
 
+void LoadStudentsFromFile();
+void LoadApplicationsFromFile();
+void LoadAdminFromFile();
+void SaveStudentsToFile();
+void SaveAdminToFile();
+void SaveApplicationsToFile();
+void register_stud();
+void register_admin();
+void register_application(int index_Student);
+void UpdateStudentProfile(int index_Student);
+void ViewStudentProfile(int index_Student);
+void ViewProfileAdmin(int index_Admin);
+void approveRejectApplication(int app_index);
+int FindStudentIndexByID(string id);
+int FindAdminIndexByID(string id);
+int FindApplicationIndexByStudentID(string studentID);
+void studentMenu(int index_Student);
+void adminMenu(int index_Admin);
+void MainMenu();
+
+int main() {
+
+    /*LoadStudentsFromFile();
+    LoadApplicationsFromFile();
+    LoadAdminFromFile();
+
+    // Example usage
+    register_stud();
+    register_admin();
+    FindAdminIndexByID();
+    FindStudentIndexByID();
+    approveRejectApplication();
+
+    MainMenu();
+
+    SaveStudentsToFile();
+    SaveApplicationsToFile();
+    SaveAdminToFile();
+
+    return 0;   
+}*/
+
 void LoadStudentsFromFile() {
     ifstream file("students.txt");
 
@@ -115,7 +157,9 @@ file.close();
 void register_stud(){
 	student stud;
 
-	cout << "Generated ID: " << stud.id << endl;
+    stud.id = "S" + to_string(studentCount + 1); 
+    cout << "Generated ID: " << stud.id << endl;
+
     cout << "Name: "; cin >> stud.name;
     cout << "Faculty: "; cin >> stud.faculty;
     cout << "Phone: "; cin >> stud.phone;
@@ -129,8 +173,9 @@ students[studentCount++] = stud;
 
 void register_admin(){
     admin ADM;
-
+    ADM.adminID = "A" + to_string(adminCount + 1);
     cout << "Generated ID: " << ADM.adminID << endl;
+
     cout << "Name: "; cin >> ADM.name;
     cout << "Password: "; cin >> ADM.password;
 
@@ -144,15 +189,34 @@ void register_application(int index_Student){
 
     APP.studentID = students[index_Student].id;
 
+    do{
     cout << "Enter number of months for parking pass: "; 
     cin >> APP.months;
+    }while(APP.months <= 0 || APP.months > 3);
 
-    APP.status = "Pending";
+    APP.status = "pending";
 
 apps[appsCount++] = APP;
 
     cout << "Application submitted successfully!\n";
 }
+
+void UpdateStudentProfile(int index_Student){
+    
+    cout << "Update Name: "; 
+    cin >> students[index_Student].name;
+    cout << "Update Faculty: "; 
+    cin >> students[index_Student].faculty;
+    cout << "Update Phone: "; 
+    cin >> students[index_Student].phone;
+    cout << "Update Vehicle: "; 
+    cin >> students[index_Student].vehicle;
+    cout << "Update Password: "; 
+    cin >> students[index_Student].password;
+
+    cout << "Profile Updated Successfully!\n";
+}
+
 // --------------------------------------------------------------------------------------- ignore this line, visual only for better organization of code ---------------------------------------------------------------------------------------
 
 void ViewStudentProfile(int index_Student){ 
@@ -171,12 +235,29 @@ void ViewStudentProfile(int index_Student){
         if(apps[i].studentID == students[index_Student].id){
             cout << "Application for " << apps[i].months << " month(s): " << apps[i].status << endl;
             found = true;
+            if(apps[i].status == "approved"){
+                cout << "Application for " << apps[i].months << " month(s) : APPROVED - Please make payment. \n";
+
+                char pay; 
+                cout << "Pay now? (y/n): ";
+                cin >> pay;
+
+                if(pay == 'y' || pay == 'Y'){
+                    apps[i].status = "paid";
+                    cout << "Payment successful! Your parking pass will be activated soon.\n";
+        
+            }else if(apps[i].status == "pending"){
+                cout << "Your application is still pending. Please wait for admin approval.\n";
+            }else{
+            cout << "Application for " << apps[i].months << " month(s) : " << apps[i].status << endl;
+            }
         }
     }
 
     if(!found){
         cout << "No applications found." << endl;
     }   
+}
 }
 
 void ViewProfileAdmin(int index_Admin){
@@ -189,7 +270,7 @@ void ViewProfileAdmin(int index_Admin){
     bool found = false;
 
     for(int i = 0; i < appsCount; i++){
-        if(apps[i].status == "Pending"){
+        if(apps[i].status == "pending"){
             cout << "[" << i << "] "
                  << "Student ID: " << apps[i].studentID 
                  << ", Months: " << apps[i].months << endl;
@@ -263,6 +344,54 @@ int FindApplicationIndexByStudentID(string studentID) {
     }
     return -1; // Not found
 }
+
+// --------------------------------------------------------------------------------------- ignore this line, visual only for better organization of code ---------------------------------------------------------------------------------------
+
+void studentMenu(int index_Student){
+    int choice;
+
+    while(true){
+        cout << "1. View Profile \n2. Apply for Parking Pass \n3. Logout \n4. Update Profile \nEnter your choice: ";
+        cin >> choice;
+
+        if(choice == 1){
+            ViewStudentProfile(index_Student);
+        }else if(choice == 2){
+            register_application(index_Student);
+        }else if(choice == 3){
+            cout << "Logging out... " << endl;
+            break;
+        }else if(choice == 4){
+            UpdateStudentProfile(index_Student);
+        }else{
+            cout << "Invalid choice. Please enter 1, 2, or 3. " << endl;
+            return;
+        }
+    }
+}
+
+void adminMenu(int index_Admin){
+    int choice;
+
+    while(true){
+        cout << "1. View Profile \n2. View Statistics \n3. Logout \nEnter your choice: ";
+        cin >> choice;
+
+        if(choice == 1){
+            ViewProfileAdmin(index_Admin);
+        }else if(choice == 2){
+            StatisticsUsage();
+        }else if(choice == 3){
+            cout << "Logging out... " << endl;
+            break;
+        }else{
+            cout << "Invalid choice. Please enter 1, 2, or 3. " << endl;
+            return;
+        }
+    }
+}
+
+//---------------------------------------------------------------------------------------- ignore this line, visual only for better organization of code ---------------------------------------------------------------------------------------
 
 // so here we got this
 void MainMenu(){
@@ -347,25 +476,3 @@ void StatisticsUsage(){
     cout << "Rejected: " << rejectedCount << endl;
     
 }
-
-int main() {
-
-    LoadStudentsFromFile();
-    LoadApplicationsFromFile();
-    LoadAdminFromFile();
-
-    /*// Example usage
-    register_stud();
-    register_admin();
-    FindAdminIndexByID();
-    FindStudentIndexByID();
-    approveRejectApplication();
-
-    MainMenu();
-
-    SaveStudentsToFile();
-    SaveApplicationsToFile();
-    SaveAdminToFile();
-
-    return 0;   
-}*/
