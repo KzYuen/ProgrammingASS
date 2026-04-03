@@ -137,6 +137,20 @@ admins[adminCount++] = ADM;
     cout << "Admin Registration Successful!\n";
 }
 
+string register_application(int index_Student){
+    application APP;
+
+    APP.studentID = students[index_Student].id;
+
+    cout << "Enter number of months for parking pass: "; 
+    cin >> APP.months;
+
+    APP.status = "Pending";
+
+apps[passCount++] = APP;
+
+    cout << "Application submitted successfully!\n";
+}
 // --------------------------------------------------------------------------------------- ignore this line, visual only for better organization of code ---------------------------------------------------------------------------------------
 
 void ViewStudentProfile(int index_Student){ 
@@ -146,7 +160,9 @@ void ViewStudentProfile(int index_Student){
     cout << "\nFaculty: " << students[index_Student].faculty;
     cout << "\nPhone: " << students[index_Student].phone;
     cout << "\nVehicle: " << students[index_Student].vehicle << endl;
-
+    
+    cout << "------------ Application Status ------------" << endl;
+    
 }
 
 void ViewProfileAdmin(int index_Admin){
@@ -154,6 +170,8 @@ void ViewProfileAdmin(int index_Admin){
     cout << "Nothing";
 
 }
+
+// --------------------------------------------------------------------------------------- ignore this line, visual only for better organization of code ---------------------------------------------------------------------------------------
 
 void approveRejectApplication(){
 
@@ -204,9 +222,27 @@ cout << "Application not found" << endl;
 
 }
 
+int FindStudentIndexByID(string id) {
+    for (int i = 0; i < studentCount; i++) {
+        if (students[i].id == id) {
+            return i;
+        }
+    }
+    return -1; // Not found
+}
+
+int FindAdminIndexByID(string id) {
+    for (int i = 0; i < adminCount; i++) {
+        if (admins[i].adminID == id) {
+            return i;
+        }
+    }
+    return -1; // Not found
+}
+
 // so here we got this
 void MainMenu(){
-    int choice, index_Student, index_Admin;
+    int choice, student_id, Admin_id;
     string password_Student, password_Admin;
 
     cout << "1. Sign Up as a Student. \n 2. Sign Up as an Admin. \n 3. Login as a Student. \n 4. Login as an Admin. \n 5. Exit. \n Enter your choice: ";
@@ -217,47 +253,44 @@ void MainMenu(){
         register_admin();
     }else if(choice == 3){
         cout << "Enter Student ID: " << endl;
-        cin >> index_Student;
+        cin >> student_id;
         cout << "Enter Password: " << endl;
         cin >> password_Student;
 
-        ifstream file("students.txt");
-
-        while(file.is_open()){
-            if(students[index_Student].id == index_Student && students[index_Student].password == password_Student){
-                cout << "Login Successful!" << endl;
-                ViewStudentProfile(index_Student);
-            }else{
-                cout << "Invalid ID or Password. Please try again. " << endl;
-                return;
-            }
-
+        int index_Student = FindStudentIndexByID(to_string(student_id));
+        // -1 means not found, otherwise it will return the index of the student in the array
+        if(index_Student != -1 && students[index_Student].password == password_Student){
+            cout << "Login Successful!" << endl;
+            ViewStudentProfile(index_Student);
+        }else{
+            cout << "Invalid ID or Password. Please try again. " << endl;
+            return;
         }
     }else if(choice == 4){
         cout << "Enter Admin ID: " << endl;
-        cin >> index_Admin;
+        cin >> Admin_id;
         cout << "Enter Password: " << endl;
         cin >> password_Admin;
 
-        ifstream file("admin.txt");
+        int index_Admin = FindAdminIndexByID(to_string(Admin_id));
 
-        while(file.is_open()){
-            if(admins[index_Admin].adminID == index_Admin && admins[index_Admin].password == password_Admin){
-                cout << "Login Successful!" << endl;
-                ViewProfileAdmin(index_Admin);
-            }else{
-                cout << "Invalid ID or Password. Please try again. " << endl;
-                return;
+        if(index_Admin != -1 && admins[index_Admin].password == password_Admin){
+            cout << "Login Successful!" << endl;
+            ViewProfileAdmin(index_Admin);
+        }else{
+            cout << "Invalid ID or Password. Please try again. " << endl;
+            return;
             }
-    }
-
-    }else{
+    }else if(choice == 5){
         cout << "Exiting... " << endl;
-        cout << "Want to "
+        return; 
+    }else{
+        cout << "Invalid choice. Please enter 1, 2, 3, 4, or 5. " << endl;
+        return;
     }
-
 
 }
+
 int main() {
 
     LoadStudentsFromFile();
@@ -267,9 +300,11 @@ int main() {
     // Example usage
     register_stud();
     register_admin();
-    ViewStudentProfile(index_Student);
-    ViewProfileAdmin(index_Admin);
+    FindAdminIndexByID();
+    FindStudentIndexByID();
     approveRejectApplication();
+
+    MainMenu();
 
     SaveStudentsToFile();
     SaveApplicationsToFile();
