@@ -249,7 +249,7 @@ void register_stud(){
         bool hasLower = false; 
         bool hasDigit = false; 
         bool hasSpecial = false;
-
+//dwd
         for(char c : stud.password){
             if(isupper(c)){
                 hasUpper = true;
