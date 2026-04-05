@@ -57,6 +57,7 @@ void register_application(int index_Student);
 void renew_application(int index_Student);
 void viewApplicationHistory(int index_Student);
 void UpdateStudentProfile(int index_Student);
+void UpdatesAdminProfile(int index_Admin);
 void ViewStudentProfile(int index_Student);
 void ViewProfileAdmin(int index_Admin);
 void approveRejectApplication(int app_index);
@@ -71,6 +72,8 @@ void MainMenu();
 string getCurrentMonth();
 string getCurrentDate();
 bool isApproachingMonthEnd();
+
+//------------------------------------------------------------------------------- ignore this line, visual only for better organization of code ---------------------------------------------------------------------------------------
 
 int main() {
     
@@ -228,28 +231,32 @@ void register_stud(){
     stud.id = "S" + to_string(studentCount + 1); 
     cout << "Generated ID: " << stud.id << endl;
 
-    cout << "Name: "; cin >> stud.name;
-    cout << "Email: "; cin >> stud.stud_email;
-    cout << "Faculty: "; cin >> stud.faculty;
-    cout << "Phone: "; cin >> stud.phone;
-    cout << "Vehicle: "; cin >> stud.vehicle;
-    cout << "Password: "; cin >> stud.password;
+    cout << "Name: "; 
+    getline(cin >> ws,stud.name);
+    cout << "Email: "; 
+    getline(cin >> ws,stud.stud_email);
+    cout << "Faculty: "; 
+    getline(cin >> ws,stud.faculty);
+    cout << "Phone: "; 
+    getline(cin >> ws,stud.phone);
+    cout << "Vehicle: "; 
+    getline(cin >> ws,stud.vehicle);
 
     bool pass = false;
     while(!pass){
-        cout << "Password must be at least 15 character, include lower, upper, number and special character. Please enter password again: ";
-        cin >> stud.password;
+        cout << "Password must be at least 15 character, include lower, upper, number and special character. Please enter password: ";
+        getline(cin >> ws,stud.password);
 
         if(stud.password.length() < 15){
             cout << "Password must be at least 15 characters long.\n";
             continue;
         }
-    }    
+   
         bool hasUpper = false;
         bool hasLower = false; 
         bool hasDigit = false; 
         bool hasSpecial = false;
-//dwd
+
         for(char c : stud.password){
             if(isupper(c)){
                 hasUpper = true;
@@ -262,12 +269,12 @@ void register_stud(){
             }
         }
         
-        if(hasUpper && hasLower && hasDigit && hasSpecial){
+        if(hasUpper && hasLower && hasDigit && hasSpecial && stud.password.length() >= 15){
             pass = true;
         }else{
             cout << "Password must include uppercase, lowercase, number and special character.\n";
         }
-
+    }
     students[studentCount++] = stud;
     SaveStudentsToFile();
 
@@ -281,18 +288,18 @@ void register_admin(){
     ADM.adminID = "A" + to_string(adminCount + 1);
     cout << "Generated Admin ID: " << ADM.adminID << endl;
     cout << "Name: "; 
-    cin >> ADM.name;
-
+    getline(cin >> ws,ADM.name);
+    
     bool pass = false;
     while(!pass){
-        cout << "Password must be at least 15 character, include lower, upper, number and special character. Please enter password again: ";
-        cin >> ADM.password;
+        cout << "Password must be at least 15 character, include lower, upper, number and special character. Please enter password: ";
+        getline(cin >> ws,ADM.password);
 
-        if(ADM.password.length() <= 15){
+        if(ADM.password.length() < 15){
             cout << "Password must be at least 15 characters long.\n";
             continue;
         }
-    }    
+      
         bool hasUpper = false;
         bool hasLower = false; 
         bool hasDigit = false; 
@@ -310,12 +317,12 @@ void register_admin(){
             }
         }
         
-        if(hasUpper && hasLower && hasDigit && hasSpecial){
+        if(hasUpper && hasLower && hasDigit && hasSpecial && ADM.password.length() >= 15){
             pass = true;
         }else{
             cout << "Password must include uppercase, lowercase, number and special character.\n";
         }
-
+    }
     admins[adminCount++] = ADM;
     SaveAdminToFile();
 
@@ -363,18 +370,31 @@ void UpdateStudentProfile(int index_Student){
     student& stud = students[index_Student];
 
     cout << "Update Name: "; 
-    cin >> students[index_Student].name;
+    getline(cin >> ws, students[index_Student].name);
     cout << "Update Faculty: "; 
-    cin >> students[index_Student].faculty;
+    getline(cin >> ws, students[index_Student].faculty);
     cout << "Update Phone: "; 
-    cin >> students[index_Student].phone;
+    getline(cin >> ws, students[index_Student].phone);
     cout << "Update Vehicle: "; 
-    cin >> students[index_Student].vehicle;
+    getline(cin >> ws, students[index_Student].vehicle);
     cout << "Update Password: "; 
-    cin >> students[index_Student].password;
-    
+    getline(cin >> ws, students[index_Student].password);
+
     SaveStudentsToFile();
     cout << "Profile Updated Successfully!\n";
+}
+
+void UpdatesAdminProfile(int index_Admin){
+    printHeader("Update Admin Profile");
+    admin& ADM = admins[index_Admin];
+
+    cout << "Update Name: "; 
+    getline(cin >> ws, admins[index_Admin].name);
+    cout << "Update Password: "; 
+    getline(cin >> ws, admins[index_Admin].password);
+
+    SaveAdminToFile();
+    cout << "Admin Profile Updated Successfully!\n";
 }
 
 // --------------------------------------------------------------------------------------- ignore this line, visual only for better organization of code ---------------------------------------------------------------------------------------
@@ -513,12 +533,12 @@ void ViewProfileAdmin(int index_Admin){
     }
 
     int choice;
-    cout << "\nEnter application index to process (-1 to cancel): ";
+    cout << "\nEnter application index to process (0 to cancel): ";
     cin >> choice;
 
-    if (choice == -1) return;
+    if (choice == 0) return;
 
-    if(choice >= 0 && choice < appsCount){
+    if(choice > 0 && choice < appsCount){
         if(apps[choice].status == "pending"){
             approveRejectApplication(choice);
         }else{
@@ -532,8 +552,8 @@ void ViewProfileAdmin(int index_Admin){
 // --------------------------------------------------------------------------------------- ignore this line, visual only for better organization of code ---------------------------------------------------------------------------------------
 
 void approveRejectApplication(int app_index){
-    cout << "\n  Application : " << apps[app_index].studentID
-         << "  |  " << apps[app_index].months << " month(s)\n";
+
+    cout << "\n  Application : " << apps[app_index].studentID  << "  |  " << apps[app_index].months << " month(s)\n";
     cout << "  1. Approve\n  2. Reject\n";
     cout << "  Decision (1/2): ";
     int decision;
@@ -842,29 +862,42 @@ void MainMenu(){
             cout << "Enter Student ID: " << endl;
             cin >> student_id;
             cout << "Enter Password: " << endl;
-            cin >> password_Student;
+            getline(cin >> ws, password_Student);
             
             int index_Student = FindStudentIndexByID(student_id);
-            if (index_Student != -1 && students[index_Student].password == password_Student) {
+
+            if(index_Student != -1) {
                 cout << "Login Successful!" << endl;
                 studentMenu(index_Student);
-            } else {
-                cout << "Invalid ID or Password. Please try again. " << endl;
-                continue;
+            }
+            
+            while(true){
+                cout << "Enter Password: " << endl;
+                getline(cin >> ws, password_Student);
+
+                if(students[index_Student].password == password_Student){
+                    cout << "Login Successful!" << endl;
+                    studentMenu(index_Student);
+                    break;
+                }else{
+                    cout << "Invalid Password. Please try again. " << endl; 
+                    break;
+                }
             }
         }else if(choice == 4){
             cout << "Enter Admin ID: " << endl;
             cin >> Admin_id;
             cout << "Enter Password: " << endl;
-            cin >> password_Admin;
+            getline(cin >> ws, password_Admin);
             
             int index_Admin = FindAdminIndexByID(Admin_id);
+
             if(index_Admin != -1 && admins[index_Admin].password == password_Admin){
                 cout << "Login Successful!" << endl;
                 adminMenu(index_Admin);
             }else{
                 cout << "Invalid ID or Password. Please try again. " << endl;
-                return;
+                continue;
             }
         }else if(choice == 5){
             cout << "Exiting... " << endl;
