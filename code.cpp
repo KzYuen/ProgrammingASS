@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <ctime>
 #include <sstream>
+#include <limits>
 
 using namespace std;
 
@@ -245,7 +246,7 @@ void register_stud(){
     bool pass = false;
     while(!pass){
         cout << "Password must be at least 15 character, include lower, upper, number and special character. Please enter password: ";
-        getline(cin >> ws,stud.password);
+        cin >> stud.password;
 
         if(stud.password.length() < 15){
             cout << "Password must be at least 15 characters long.\n";
@@ -293,7 +294,7 @@ void register_admin(){
     bool pass = false;
     while(!pass){
         cout << "Password must be at least 15 character, include lower, upper, number and special character. Please enter password: ";
-        getline(cin >> ws,ADM.password);
+        cin >> ADM.password;
 
         if(ADM.password.length() < 15){
             cout << "Password must be at least 15 characters long.\n";
@@ -538,7 +539,7 @@ void ViewProfileAdmin(int index_Admin){
 
     if (choice == 0) return;
 
-    if(choice > 0 && choice < appsCount){
+    if(choice >= 0 && choice < appsCount){
         if(apps[choice].status == "pending"){
             approveRejectApplication(choice);
         }else{
@@ -586,9 +587,9 @@ void statisticsUsage(int index_Admin) {
 
     // Per-faculty counts
     string facultyNames[20];
-    int    facultyApps[20]      = {0};
-    int    facultyApproved[20]  = {0};
-    int    facultyCount         = 0;
+    int    facultyApps[20] = {0};
+    int    facultyApproved[20] = {0};
+    int    facultyCount = 0;
 
     // Monthly application counts (last 12 months)
     string monthLabels[12];
@@ -768,6 +769,21 @@ int FindApplicationIndexByStudentID(string studentID) {
     return -1; // Not found
 }
 
+int safeInputInt(int min, int max) {
+    int n;
+    while (true) {
+        cin >> n;
+        if (cin.fail() || n < min || n > max) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Please enter a valid number (" << min << "–" << max << "): ";
+        } else {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard extras
+            return n;
+        }
+    }
+}
+
 // ============================================================
 // MENUS
 // ============================================================
@@ -787,7 +803,7 @@ void studentMenu(int index_Student){
         cout << "  6. Logout\n";
         printLine();
         cout << "  Choice: ";
-        cin >> choice;
+        choice = safeInputInt(1, 6); // Ensure valid input
 
         if(choice == 1){
             ViewStudentProfile(index_Student);
@@ -800,7 +816,8 @@ void studentMenu(int index_Student){
         }else if (choice == 5) {
             viewApplicationHistory(index_Student);
         }else if (choice == 6) { 
-            cout << "  Logging out...\n"; break;
+            cout << "  Logging out...\n"; 
+            break;
         }
         // FIX: was 'return' — kicked user out of loop; now continues correctly
         else    cout << "  Invalid choice. Please enter 1-6.\n";
@@ -818,7 +835,7 @@ void adminMenu(int index_Admin){
         cout << "  3. Logout\n";
         printLine();
         cout << "  Choice: ";
-        cin  >> choice;
+        choice = safeInputInt(1, 3); // Ensure valid input
 
         if(choice == 1){
             ViewProfileAdmin(index_Admin);
@@ -852,7 +869,7 @@ void MainMenu(){
         cout << "  5. Exit\n";
         printLine();
         cout << "  Choice: ";
-        cin  >> choice;
+        choice = safeInputInt(1, 5); // Ensure valid input
 
         if(choice == 1){
             register_stud();
@@ -861,43 +878,66 @@ void MainMenu(){
         }else if(choice == 3){
             cout << "Enter Student ID: " << endl;
             cin >> student_id;
-            cout << "Enter Password: " << endl;
-            getline(cin >> ws, password_Student);
             
             int index_Student = FindStudentIndexByID(student_id);
 
-            if(index_Student != -1) {
-                cout << "Login Successful!" << endl;
-                studentMenu(index_Student);
+            if(index_Student == -1) {
+                cout << "Invalid Student ID. Please try again. " << endl;
+                continue;
             }
-            //rfr
-            while(true){
+            
+            int attemps = 0;
+            bool logginOK  = false;
+
+            while(attemps < 3){
                 cout << "Enter Password: " << endl;
-                getline(cin >> ws, password_Student);
+                cin >> password_Student;
 
                 if(students[index_Student].password == password_Student){
                     cout << "Login Successful!" << endl;
                     studentMenu(index_Student);
+                    logginOK = true;
                     break;
                 }else{
                     cout << "Invalid Password. Please try again. " << endl; 
-                    break;
+                    attemps++;
                 }
             }
+
+            if(!logginOK){
+                cout << "Too many failed attempts. Returning to main menu.\n";
+            }
+
         }else if(choice == 4){
             cout << "Enter Admin ID: " << endl;
             cin >> Admin_id;
-            cout << "Enter Password: " << endl;
-            getline(cin >> ws, password_Admin);
-            
+
             int index_Admin = FindAdminIndexByID(Admin_id);
 
-            if(index_Admin != -1 && admins[index_Admin].password == password_Admin){
-                cout << "Login Successful!" << endl;
-                adminMenu(index_Admin);
-            }else{
-                cout << "Invalid ID or Password. Please try again. " << endl;
+            if(index_Admin == -1){
+                cout << "Invalid Admin ID. Please try again. " << endl;
                 continue;
+            }
+            
+            int attemps = 0;
+            bool logginOK  = false;
+
+            while(attemps < 3){
+                cout << "Enter Password: " << endl;
+                cin >> password_Admin;
+
+                if(admins[index_Admin].password == password_Admin){
+                    cout << "Login Successful!" << endl;
+                    adminMenu(index_Admin);
+                    logginOK = true;
+                    break;
+                }else{
+                    cout << "Invalid Password. Please try again. " << endl; 
+                    attemps++;
+                }
+            }
+            if(!logginOK){
+                cout << "Too many failed attempts. Returning to main menu.\n";
             }
         }else if(choice == 5){
             cout << "Exiting... " << endl;
