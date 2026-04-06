@@ -124,56 +124,76 @@ bool isApproachingMonthEnd() {
 // ============================================================
 
 void LoadStudentsFromFile() {
+    
     ifstream file("students.txt");
-
-    while (file >> students[studentCount].id
-     	        >> students[studentCount].name
-                >> students[studentCount].stud_email
-     	        >> students[studentCount].faculty
-     	        >> students[studentCount].phone
-    	        >> students[studentCount].vehicle
-    	        >> students[studentCount].password) {
+    string line;
+    
+    while (getline(file, line)) {
+        if (line.empty()) continue;
+            stringstream ss(line);
+            string token;
+            student& s = students[studentCount];
+            getline(ss, s.id,'|');
+            getline(ss, s.name,'|');
+            getline(ss, s.stud_email,'|');
+            getline(ss, s.faculty,'|');
+            getline(ss, s.phone,'|');
+            getline(ss, s.vehicle,'|');
+            getline(ss, s.password,'|');
         studentCount++;
     }
     file.close();
 }
 
 void LoadApplicationsFromFile() {
+    
     ifstream file("applications.txt");
-
-    while (file >> apps[appsCount].studentID
-     	        >> apps[appsCount].months
-      	        >> apps[appsCount].status
-                >> apps[appsCount].applyDate
-                >> apps[appsCount].applyMonth) {
+    string line;
+    
+    while (getline(file, line)) {
+        if (line.empty()) continue;
+            stringstream ss(line);
+            application& a = apps[appsCount];
+            string monthsStr;
+            getline(ss, a.studentID,'|');
+            getline(ss, monthsStr,'|');
+            a.months = stoi(monthsStr);
+            getline(ss, a.status,'|');
+            getline(ss, a.applyDate,'|');
+            getline(ss, a.applyMonth,'|');
         appsCount++;
- 	}
-    file.close();
-}
-
-void LoadAdminFromFile(){
-    ifstream file("admin.txt");
-
-    while (file >> admins[adminCount].adminID
-     	        >> admins[adminCount].name
-     	        >> admins[adminCount].password) {
-        adminCount++;
     }
     file.close();
 }
 
+void LoadAdminFromFile() {
+
+    ifstream file("admin.txt");
+    string line;
+    
+    while (getline(file, line)) {
+        if (line.empty()) continue;
+            stringstream ss(line);
+            admin& a = admins[adminCount];
+            getline(ss, a.adminID,'|');
+            getline(ss, a.name,'|');
+            getline(ss, a.password,'|');
+        adminCount++;
+    }
+    file.close();
+}
 // ---------------------------------------------------------------------------------- ignore this line, visual only for better organization of code ----------------------------------------------------------------------------------
 
 void SaveStudentsToFile() {
     ofstream file("students.txt");
 
     for (int i = 0; i < studentCount; i++) {
-            file << students[i].id << " "
-     	         << students[i].name << " "
-                 << students[i].stud_email << " "
-     	         << students[i].faculty << " "
-    	         << students[i].phone << " "
-                 << students[i].vehicle << " "
+            file << students[i].id << "|"
+     	         << students[i].name << "|"
+                 << students[i].stud_email << "|"
+     	         << students[i].faculty << "|"
+    	         << students[i].phone << "|"
+                 << students[i].vehicle << "|"
                  << students[i].password << endl;
     }
     file.close();
@@ -183,8 +203,8 @@ void SaveAdminToFile() {
     ofstream file("admin.txt");
     
     for(int i = 0; i < adminCount; i++){
-        file << admins[i].adminID << " "
-             << admins[i].name << " "
+        file << admins[i].adminID << "|"
+             << admins[i].name << "|"
              << admins[i].password << endl;
     }
     file.close();
@@ -194,11 +214,11 @@ void SaveApplicationsToFile() {
 ofstream file("applications.txt");
 
 for (int i = 0; i < appsCount; i++) {
-        file << apps[i].studentID << " "
-     	     << apps[i].months << " "
-     	     << apps[i].status << " "
-             << apps[i].applyDate << " "
-             << apps [i]. applyMonth << " " <<endl;
+        file << apps[i].studentID << "|"
+     	     << apps[i].months << "|"
+     	     << apps[i].status << "|"
+             << apps[i].applyDate << "|"
+             << apps [i]. applyMonth << "\n";
     }
     file.close();
 }
@@ -246,7 +266,7 @@ void register_stud(){
     bool pass = false;
     while(!pass){
         cout << "Password must be at least 15 character, include lower, upper, number and special character. Please enter password: ";
-        cin >> stud.password;
+        getline(cin >> ws,stud.password);
 
         if(stud.password.length() < 15){
             cout << "Password must be at least 15 characters long.\n";
@@ -294,7 +314,7 @@ void register_admin(){
     bool pass = false;
     while(!pass){
         cout << "Password must be at least 15 character, include lower, upper, number and special character. Please enter password: ";
-        cin >> ADM.password;
+        getline(cin >> ws,ADM.password);
 
         if(ADM.password.length() < 15){
             cout << "Password must be at least 15 characters long.\n";
@@ -358,8 +378,73 @@ void register_application(int index_Student){
 
 }   
 
-void renew_application(int index_Student){
-        register_application(index_Student);
+void renew_application(int index_Student) {
+    printHeader("Renew Parking Pass");
+    string id = students[index_Student].id;
+
+    // Find the most recent paid pass belonging to this student
+    int paidIndex = -1;
+    for (int i = appsCount - 1; i >= 0; i--) {
+        if (apps[i].studentID == id && apps[i].status == "paid") {
+            paidIndex = i;
+            break;
+        }
+    }
+
+    if (paidIndex == -1) {
+        cout << "  No active (paid) parking pass found.\n";
+        cout << "  You can only renew an existing paid pass.\n";
+        cout << "  Please apply for a new pass instead (Option 3).\n";
+        return;
+    }
+
+    // Show the pass being renewed
+    cout << "  Active pass found:\n";
+    printLine();
+    cout << "  Applied on : " << apps[paidIndex].applyDate  << "\n";
+    cout << "  Duration   : " << apps[paidIndex].months     << " month(s)\n";
+    cout << "  Status     : " << apps[paidIndex].status     << "\n";
+    printLine();
+
+    char confirm;
+    cout << "  Renew this pass? (y/n): ";
+    cin  >> confirm;
+    if (confirm != 'y' && confirm != 'Y') {
+        cout << "  Renewal cancelled.\n";
+        return;
+    }
+
+    // Check no pending/approved renewal already exists
+    for (int i = 0; i < appsCount; i++) {
+        if (apps[i].studentID == id &&
+           (apps[i].status == "pending" || apps[i].status == "approved")) {
+            cout << "  You already have a pending/approved application.\n";
+            cout << "  Please wait for it to be processed before renewing.\n";
+            return;
+        }
+    }
+
+    // Mark the old pass as expired
+    apps[paidIndex].status = "expired";
+
+    // Create the renewal application
+    application renewal;
+    renewal.studentID  = id;
+    renewal.applyDate  = getCurrentDate();
+    renewal.applyMonth = getCurrentMonth();
+    renewal.status     = "pending";
+
+    cout << "  Advance renewals of up to 3 months are allowed.\n\n";
+    do {
+        cout << "  Enter number of months to renew (1-3): ";
+        cin  >> renewal.months;
+    } while (renewal.months < 1 || renewal.months > 3);
+
+    apps[appsCount++] = renewal;
+    SaveApplicationsToFile();
+
+    cout << "\n  Renewal submitted on " << renewal.applyDate << ".\n";
+    cout << "  Old pass marked as expired. Pending admin approval.\n";
 }
 
 // ============================================================
@@ -534,10 +619,10 @@ void ViewProfileAdmin(int index_Admin){
     }
 
     int choice;
-    cout << "\nEnter application index to process (0 to cancel): ";
+    cout << "\nEnter application index to process (-1 to cancel): ";
     cin >> choice;
 
-    if (choice == 0) return;
+    if (choice == -1) return;
 
     if(choice >= 0 && choice < appsCount){
         if(apps[choice].status == "pending"){
@@ -783,7 +868,7 @@ int safeInputInt(int min, int max) {
         }
     }
 }
-//ijij
+
 // ============================================================
 // MENUS
 // ============================================================
@@ -876,39 +961,47 @@ void MainMenu(){
         }else if(choice == 2){
             register_admin();
         }else if(choice == 3){
-            cout << "Enter Student ID: " << endl;
-            cin >> student_id;
+
+            while(true){
+
+                cout << "Enter Student ID: " << endl;
+                cin >> student_id;
             
-            int index_Student = FindStudentIndexByID(student_id);
+                int index_Student = FindStudentIndexByID(student_id);
 
-            if(index_Student == -1) {
-                cout << "Invalid Student ID. Please try again. " << endl;
-                continue;
-            }
-            
-            int attemps = 0;
-            bool logginOK  = false;
-
-            while(attemps < 3){
-                cout << "Enter Password: " << endl;
-                cin >> password_Student;
-
-                if(students[index_Student].password == password_Student){
-                    cout << "Login Successful!" << endl;
-                    studentMenu(index_Student);
-                    logginOK = true;
-                    break;
-                }else{
-                    cout << "Invalid Password. Please try again. " << endl; 
-                    attemps++;
+                if(index_Student == -1) {
+                    cout << "Invalid Student ID. Please try again. " << endl;
+                    continue;
                 }
-            }
+            
+                int attemps = 0;
+                bool logginOK  = false;
 
-            if(!logginOK){
-                cout << "Too many failed attempts. Returning to main menu.\n";
+                while(attemps < 3){
+                    cout << "Enter Password: " << endl;
+                    getline(cin >> ws, password_Student);
+
+                    if(students[index_Student].password == password_Student){
+                        cout << "Login Successful!" << endl;
+                        studentMenu(index_Student);
+                        logginOK = true;
+                        break;
+                    }else{
+                        cout << "Invalid Password. Please try again. " << endl; 
+                        attemps++;
+                    }
+                }
+
+                if(!logginOK){
+                    cout << "Too many failed attempts. Returning to main menu.\n";
+                }
+
+                break;
             }
 
         }else if(choice == 4){
+
+            while(true){
             cout << "Enter Admin ID: " << endl;
             cin >> Admin_id;
 
@@ -924,7 +1017,7 @@ void MainMenu(){
 
             while(attemps < 3){
                 cout << "Enter Password: " << endl;
-                cin >> password_Admin;
+                getline(cin >> ws, password_Admin);
 
                 if(admins[index_Admin].password == password_Admin){
                     cout << "Login Successful!" << endl;
@@ -939,11 +1032,13 @@ void MainMenu(){
             if(!logginOK){
                 cout << "Too many failed attempts. Returning to main menu.\n";
             }
-        }else if(choice == 5){
-            cout << "Exiting... " << endl;
             break;
-        }else{
-            cout << "Invalid choice. Please enter 1-5. " << endl;
+        }
+    }else if(choice == 5){
+        cout << "Exiting... " << endl;
+        break;
+    }else{
+        cout << "Invalid choice. Please enter 1-5. " << endl;
         }
     }
 }
