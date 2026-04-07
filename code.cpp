@@ -212,11 +212,11 @@ int safeInputInt(int min, int max) {
 string getValidPassword() {
     string password;
     while (true) {
-        cout << "Password (min 15 chars, upper+lower+digit+special): ";
+        cout << "Password (min 12 chars, upper+lower+digit+special): ";
         getline(cin >> ws, password);
 
-        if (password.length() < 9) {
-            cout << "Password must be at least 9 characters.\n";
+        if (password.length() < 12) {
+            cout << "Password must be at least 12 characters.\n";
             continue;
         }
 
