@@ -101,19 +101,11 @@ void AdminViewStudentProfile(int index_Admin);
 void approveRejectApplication(int app_index);
 void statisticsUsage(int index_Admin);
 
-<<<<<<< main
-//Helpers
-int FindStudentIndexByID(string id);
-int FindAdminIndexByID(string id);
-int FindApplicationIndexByStudentID(string studentID);
-bool hasPendingOrApproved(string studentID);
-=======
 // Helpers
 int    FindStudentIndexByID(string id);
 int    FindAdminIndexByID(string id);
 bool   hasPendingOrApprovedForVehicle(string vehicleID);
 bool   hasActivePaidPassForVehicle(string vehicleID);
->>>>>>> main
 string getValidPassword();
 int    safeInputInt(int min, int max);
 void   CleanupExpiredPasses(string studentID);
@@ -344,17 +336,6 @@ void SaveAdminToFile() {
 
 void SaveApplicationsToFile() {
     ofstream file("applications.txt");
-<<<<<<< main
-
-    for (int i = 0; i < appsCount; i++) {
-        file << apps[i].studentID << "|"
-     	     << apps[i].months << "|"
-     	     << apps[i].status << "|"
-             << apps[i].applyDate << "|"
-             << apps [i].applyMonth << "\n";
-    }
-    file.close();
-=======
     for (int i = 0; i < appsCount; i++)
         file << apps[i].studentID  << "|"
              << apps[i].vehicleID  << "|"
@@ -362,7 +343,6 @@ void SaveApplicationsToFile() {
              << apps[i].status     << "|"
              << apps[i].applyDate  << "|"
              << apps[i].applyMonth << "\n";
->>>>>>> main
 }
 
 // ============================================================
@@ -394,18 +374,6 @@ bool hasPendingOrApprovedForVehicle(string vehicleID) {
     return false;
 }
 
-<<<<<<< main
-string getValidPassword() {
-    string password;
-    while (true) {
-        cout << "Password must be at least 8 characters, include uppercase, lowercase, number and special character. Please enter password: ";
-        getline(cin >> ws, password);
-
-        if (password.length() < 8) {
-            cout << "Password must be at least 8 characters long.\n";
-            continue;
-        }
-=======
 // Returns true if vehicleID has a currently paid (active) pass
 bool hasActivePaidPassForVehicle(string vehicleID) {
     for (int i = 0; i < appsCount; i++)
@@ -413,7 +381,6 @@ bool hasActivePaidPassForVehicle(string vehicleID) {
             return true;
     return false;
 }
->>>>>>> main
 
 // ============================================================
 // CLEANUP — auto-expire passes whose duration has elapsed
@@ -959,15 +926,11 @@ void viewApplicationHistory(int index_Student) {
             totalSpent  += apps[i].months * 30.0;
         }
     }
-<<<<<<< main
-
-=======
     printLine();
     cout << "  SUMMARY\n";
     printLine();
     cout << "  Total months paid : " << totalMonths << "\n";
     cout << "  Total spent       : RM " << fixed << setprecision(2) << totalSpent << "\n";
->>>>>>> main
     printLine();
 }
 
@@ -1076,6 +1039,8 @@ void approveRejectApplication(int app_index) {
 // ============================================================
 
 void statisticsUsage(int index_Admin) {
+    CleanupExpiredPasses("");
+
     printHeader("Admin: Statistics & Analytics");
     cout << "  Admin: " << admins[index_Admin].name << "\n\n";
 
@@ -1190,9 +1155,38 @@ int FindAdminIndexByID(string id) {
 // ============================================================
 // MENUS
 // ============================================================
+void loginNotificationSummary(int index_Student) {
+    string id = students[index_Student].id;
+
+    int pendingCount  = 0;
+    int approvedCount = 0;
+    int rejectedCount = 0;
+
+    for (int i = 0; i < appsCount; i++) {
+        if (apps[i].studentID != id) continue;
+        if      (apps[i].status == "pending")  pendingCount++;
+        else if (apps[i].status == "approved") approvedCount++;
+        else if (apps[i].status == "rejected") rejectedCount++;
+    }
+
+    if (pendingCount == 0 && approvedCount == 0 && rejectedCount == 0) return;
+
+    cout << "\n";
+    printLine('-');
+    cout << "  NOTIFICATIONS\n";
+    printLine('-');
+    if (pendingCount  > 0)
+        cout << "  > " << pendingCount  << " application(s) pending admin review.\n";
+    if (approvedCount > 0)
+        cout << "  > " << approvedCount << " application(s) approved — payment required!\n";
+    if (rejectedCount > 0)
+        cout << "  > " << rejectedCount << " application(s) rejected. You may reapply.\n";
+    printLine('-');
+}
 
 void studentMenu(int index_Student) {
     monthEndAlert(index_Student);
+    loginNotificationSummary(index_Student);
     int choice;
     while (true) {
         printHeader("Student Menu");
@@ -1218,9 +1212,22 @@ void studentMenu(int index_Student) {
 }
 
 void adminMenu(int index_Admin) {
+    CleanupExpiredPasses("");
+
     int choice;
     while (true) {
+        int pendingCount = 0;
+        for (int i = 0; i < appsCount; i++) {
+            if (apps[i].status == "pending") {
+                pendingCount++;
+            }
+        }
+
         printHeader("Admin Menu");
+        if (pendingCount > 0) {
+            cout << "  *** You have " << pendingCount << " application(s) pending approval ***\n\n";
+        }
+
         cout << "  1. Process Pending Applications\n";
         cout << "  2. View Student Profile\n";
         cout << "  3. Statistics & Analytics\n";
@@ -1238,15 +1245,7 @@ void adminMenu(int index_Admin) {
     }
 }
 
-<<<<<<< main
-// ============================================================
-// MAIN MENU
-// ============================================================
-
-void MainMenu(){
-=======
 void MainMenu() {
->>>>>>> main
     int choice;
     string password, id;
 
@@ -1265,40 +1264,12 @@ void MainMenu() {
             register_stud();
         } else if (choice == 2) {
             register_admin();
-<<<<<<< main
-        }else if(choice == 3){
-
-            while(true){
-
-                cout << "Enter Student ID: " << endl;
-                cin >> student_id;
-            
-                int index_Student = FindStudentIndexByID(student_id);
-
-                if(index_Student == -1) {
-                    cout << "Invalid Student ID. Please try again. " << endl;
-                    continue;
-                }
-            
-                int attempts = 0;
-                bool loginOK  = false;
-
-                while(attempts < 3){
-                    cout << "Enter Password: " << endl;
-                    getline(cin >> ws, password_Student);
-
-                    if(students[index_Student].password == password_Student){
-                        cout << "Login Successful!" << endl;
-                        studentMenu(index_Student);
-                        loginOK = true;
-                        break;
-                    }else{
-                        cout << "Invalid Password. Please try again. " << endl; 
-                        attempts++;
-=======
         } else if (choice == 3) {
             while (true) {
-                cout << "  Student ID: "; cin >> id;
+                cout << "  Student ID: ";
+                cin >> id;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                
                 int si = FindStudentIndexByID(id);
                 if (si == -1) { cout << "  Invalid ID. Try again.\n"; continue; }
 
@@ -1311,48 +1282,9 @@ void MainMenu() {
                         CleanupExpiredPasses(students[si].id);
                         studentMenu(si);
                         ok = true; break;
->>>>>>> main
                     }
                     cout << "  Wrong password (" << (2 - att) << " attempt(s) left).\n";
                 }
-<<<<<<< main
-
-                if(!loginOK){
-                    cout << "Too many failed attempts. Returning to main menu.\n";
-                }
-
-                break;
-            }
-
-        }else if(choice == 4){
-
-            while(true){
-            cout << "Enter Admin ID: " << endl;
-            cin >> Admin_id;
-
-            int index_Admin = FindAdminIndexByID(Admin_id);
-
-            if(index_Admin == -1){
-                cout << "Invalid Admin ID. Please try again. " << endl;
-                continue;
-            }
-            
-            int attempts = 0;
-            bool loginOK  = false;
-
-            while(attempts < 3){
-                cout << "Enter Password: " << endl;
-                getline(cin >> ws, password_Admin);
-
-                if(admins[index_Admin].password == password_Admin){
-                    cout << "Login Successful!" << endl;
-                    adminMenu(index_Admin);
-                    loginOK = true;
-                    break;
-                }else{
-                    cout << "Invalid Password. Please try again. " << endl; 
-                    attempts++;
-=======
                 if (!ok) cout << "  Too many failed attempts. Returning to main menu.\n";
                 break;
             }
@@ -1372,19 +1304,12 @@ void MainMenu() {
                         ok = true; break;
                     }
                     cout << "  Wrong password (" << (2 - att) << " attempt(s) left).\n";
->>>>>>> main
                 }
                 if (!ok) cout << "  Too many failed attempts. Returning to main menu.\n";
                 break;
             }
-<<<<<<< main
-            if(!loginOK){
-                cout << "Too many failed attempts. Returning to main menu.\n";
-            }
-=======
         } else if (choice == 5) {
             cout << "  Exiting...\n";
->>>>>>> main
             break;
         }
     }
