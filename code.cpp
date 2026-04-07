@@ -1039,6 +1039,8 @@ void approveRejectApplication(int app_index) {
 // ============================================================
 
 void statisticsUsage(int index_Admin) {
+    CleanupExpiredPasses("");
+
     printHeader("Admin: Statistics & Analytics");
     cout << "  Admin: " << admins[index_Admin].name << "\n\n";
 
@@ -1210,6 +1212,8 @@ void studentMenu(int index_Student) {
 }
 
 void adminMenu(int index_Admin) {
+    CleanupExpiredPasses("");
+
     int choice;
     while (true) {
         int pendingCount = 0;
@@ -1262,7 +1266,10 @@ void MainMenu() {
             register_admin();
         } else if (choice == 3) {
             while (true) {
-                cout << "  Student ID: "; cin >> id;
+                cout << "  Student ID: ";
+                cin >> id;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                
                 int si = FindStudentIndexByID(id);
                 if (si == -1) { cout << "  Invalid ID. Try again.\n"; continue; }
 
