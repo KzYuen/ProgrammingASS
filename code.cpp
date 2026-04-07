@@ -81,7 +81,7 @@ void statisticsUsage(int index_Admin);
 //Helpers
 int FindStudentIndexByID(string id);
 int FindAdminIndexByID(string id);
-int FindApplicationIndexByStudentID(string studentID); //removed in modified
+int FindApplicationIndexByStudentID(string studentID);
 bool hasPendingOrApproved(string studentID);
 string getValidPassword();
 int safeInputInt(int min, int max);
@@ -297,7 +297,7 @@ void SaveApplicationsToFile() {
      	     << apps[i].months << "|"
      	     << apps[i].status << "|"
              << apps[i].applyDate << "|"
-             << apps [i]. applyMonth << "\n";
+             << apps [i].applyMonth << "\n";
     }
     file.close();
 }
@@ -343,7 +343,7 @@ int safeInputInt(int min, int max) {
 string getValidPassword() {
     string password;
     while (true) {
-        cout << "Password must be at least 15 characters, include uppercase, lowercase, number and special character. Please enter password: ";
+        cout << "Password must be at least 8 characters, include uppercase, lowercase, number and special character. Please enter password: ";
         getline(cin >> ws, password);
 
         if (password.length() < 8) {
@@ -740,7 +740,7 @@ void viewApplicationHistory(int index_Student) {
         cout << "  Total months active : " << totalMonths << "\n";
         cout << "  Total spent         : RM " << fixed << setprecision(2) << totalSpent << "\n";
     }
-    
+
     printLine();
 }
 
@@ -1092,7 +1092,6 @@ void adminMenu(int index_Admin){
 // MAIN MENU
 // ============================================================
 
-// so here we got this
 void MainMenu(){
     int choice;
     string password_Student, password_Admin, student_id, Admin_id;
@@ -1127,7 +1126,7 @@ void MainMenu(){
                 }
             
                 int attempts = 0;
-                bool logginOK  = false;
+                bool loginOK  = false;
 
                 while(attempts < 3){
                     cout << "Enter Password: " << endl;
@@ -1136,7 +1135,7 @@ void MainMenu(){
                     if(students[index_Student].password == password_Student){
                         cout << "Login Successful!" << endl;
                         studentMenu(index_Student);
-                        logginOK = true;
+                        loginOK = true;
                         break;
                     }else{
                         cout << "Invalid Password. Please try again. " << endl; 
@@ -1144,7 +1143,7 @@ void MainMenu(){
                     }
                 }
 
-                if(!logginOK){
+                if(!loginOK){
                     cout << "Too many failed attempts. Returning to main menu.\n";
                 }
 
@@ -1165,7 +1164,7 @@ void MainMenu(){
             }
             
             int attempts = 0;
-            bool logginOK  = false;
+            bool loginOK  = false;
 
             while(attempts < 3){
                 cout << "Enter Password: " << endl;
@@ -1174,14 +1173,14 @@ void MainMenu(){
                 if(admins[index_Admin].password == password_Admin){
                     cout << "Login Successful!" << endl;
                     adminMenu(index_Admin);
-                    logginOK = true;
+                    loginOK = true;
                     break;
                 }else{
                     cout << "Invalid Password. Please try again. " << endl; 
                     attempts++;
                 }
             }
-            if(!logginOK){
+            if(!loginOK){
                 cout << "Too many failed attempts. Returning to main menu.\n";
             }
             break;
