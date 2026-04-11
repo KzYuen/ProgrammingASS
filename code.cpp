@@ -1051,6 +1051,8 @@ void approveRejectApplication(int app_index) {
 // ============================================================
 
 void statisticsUsage(int index_Admin) {
+    CleanupExpiredPasses("");
+
     printHeader("Admin: Statistics & Analytics");
     cout << "  Admin: " << admins[index_Admin].name << "\n\n";
 
@@ -1178,9 +1180,38 @@ int FindAdminIndexByID(string id) {
 // ============================================================
 // MENUS
 // ============================================================
+void loginNotificationSummary(int index_Student) {
+    string id = students[index_Student].id;
+
+    int pendingCount  = 0;
+    int approvedCount = 0;
+    int rejectedCount = 0;
+
+    for (int i = 0; i < appsCount; i++) {
+        if (apps[i].studentID != id) continue;
+        if      (apps[i].status == "pending")  pendingCount++;
+        else if (apps[i].status == "approved") approvedCount++;
+        else if (apps[i].status == "rejected") rejectedCount++;
+    }
+
+    if (pendingCount == 0 && approvedCount == 0 && rejectedCount == 0) return;
+
+    cout << "\n";
+    printLine('-');
+    cout << "  NOTIFICATIONS\n";
+    printLine('-');
+    if (pendingCount  > 0)
+        cout << "  > " << pendingCount  << " application(s) pending admin review.\n";
+    if (approvedCount > 0)
+        cout << "  > " << approvedCount << " application(s) approved — payment required!\n";
+    if (rejectedCount > 0)
+        cout << "  > " << rejectedCount << " application(s) rejected. You may reapply.\n";
+    printLine('-');
+}
 
 void studentMenu(int index_Student) {
     monthEndAlert(index_Student);
+    loginNotificationSummary(index_Student);
     int choice;
     while (true) {
         printHeader("Student Menu");
@@ -1209,9 +1240,22 @@ void studentMenu(int index_Student) {
 }
 
 void adminMenu(int index_Admin) {
+    CleanupExpiredPasses("");
+
     int choice;
     while (true) {
+        int pendingCount = 0;
+        for (int i = 0; i < appsCount; i++) {
+            if (apps[i].status == "pending") {
+                pendingCount++;
+            }
+        }
+
         printHeader("Admin Menu");
+        if (pendingCount > 0) {
+            cout << "  *** You have " << pendingCount << " application(s) pending approval ***\n\n";
+        }
+
         cout << "  1. Process Pending Applications\n";
         cout << "  2. View Student Profile\n";
         cout << "  3. Statistics & Analytics\n";
@@ -1253,7 +1297,10 @@ void MainMenu() {
             register_admin();
         } else if (choice == 3) {
             while (true) {
-                cout << "  Student ID: "; cin >> id;
+                cout << "  Student ID: ";
+                cin >> id;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                
                 int si = FindStudentIndexByID(id);
                 if (si == -1) { cout << "  Invalid ID. Try again.\n"; continue; }
 
