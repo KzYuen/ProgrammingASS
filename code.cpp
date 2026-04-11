@@ -33,7 +33,7 @@ struct vehicle {
 
 struct application {
     string studentID;
-    string vehicleID; // NEW — which vehicle this pass is for
+    string vehicleID; // which vehicle this pass is for
     int    months;
     string status;    // "pending", "approved", "rejected", "paid", "expired"
     string applyDate;
