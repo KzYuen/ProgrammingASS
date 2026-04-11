@@ -1007,11 +1007,12 @@ void ViewProfileAdmin(int index_Admin) {
     if (choice == -1) return;
 
     if (choice >= 0 && choice < appsCount) {
-        if (apps[choice].status == "pending")
+        if (apps[choice].status == "pending"){
             approveRejectApplication(choice);
-        else
+        }else{
             cout << "  This application has already been processed.\n";
-    } else {
+        }
+    }else{
         cout << "  Invalid index.\n";
     }
 }
@@ -1084,16 +1085,29 @@ void statisticsUsage(int index_Admin) {
         if (si != -1) {
             string fac = students[si].faculty;
             int fi = -1;
-            for (int f = 0; f < facultyCount; f++)
-                if (facultyNames[f] == fac) { fi = f; break; }
-            if (fi == -1 && facultyCount < 20) { fi = facultyCount; facultyNames[facultyCount++] = fac; }
-            if (fi != -1) {
+            for (int f = 0; f < facultyCount; f++){
+                if (facultyNames[f] == fac) { 
+                    fi = f; 
+                    break; 
+                }
+            }
+            if(fi == -1 && facultyCount < 20){ 
+                fi = facultyCount; 
+                facultyNames[facultyCount++] = fac; 
+            }
+            if (fi != -1){
                 facultyApps[fi]++;
-                if (apps[i].status == "approved" || apps[i].status == "paid") facultyApproved[fi]++;
+                    if (apps[i].status == "approved" || apps[i].status == "paid"){ 
+                        facultyApproved[fi]++; 
+                    }
+            }   
+        }
+        for (int m = 0; m < 12; m++){
+            if (apps[i].applyMonth == monthLabels[m]) { 
+                monthApps[m]++; break; 
             }
         }
-        for (int m = 0; m < 12; m++)
-            if (apps[i].applyMonth == monthLabels[m]) { monthApps[m]++; break; }
+
     }
 
     double utilRate = studentCount > 0 ? (double)(paid + approved) / studentCount * 100.0 : 0.0;
@@ -1187,7 +1201,10 @@ void studentMenu(int index_Student) {
         else if (choice == 4) register_application(index_Student);
         else if (choice == 5) renew_application(index_Student);
         else if (choice == 6) viewApplicationHistory(index_Student);
-        else if (choice == 7) { cout << "  Logging out...\n"; break; }
+        else if (choice == 7) { 
+            cout << "  Logging out...\n"; 
+            break; 
+        }
     }
 }
 
@@ -1208,7 +1225,10 @@ void adminMenu(int index_Admin) {
         else if (choice == 2) AdminViewStudentProfile(index_Admin);
         else if (choice == 3) statisticsUsage(index_Admin);
         else if (choice == 4) UpdatesAdminProfile(index_Admin);
-        else if (choice == 5) { cout << "  Logging out...\n"; break; }
+        else if (choice == 5) { 
+            cout << "  Logging out...\n"; 
+            break; 
+        }
     }
 }
 
@@ -1237,40 +1257,45 @@ void MainMenu() {
                 int si = FindStudentIndexByID(id);
                 if (si == -1) { cout << "  Invalid ID. Try again.\n"; continue; }
 
-                bool ok = false;
-                for (int att = 0; att < 3; att++) {
+                bool passwordValid = false;
+                for (int att = 0; att < 3; att++){
                     cout << "  Password: ";
                     getline(cin >> ws, password);
                     if (students[si].password == password) {
                         cout << "  Login Successful!\n";
                         CleanupExpiredPasses(students[si].id);
                         studentMenu(si);
-                        ok = true; break;
+                        passwordValid = true;
+                        break;
                     }
                     cout << "  Wrong password (" << (2 - att) << " attempt(s) left).\n";
                 }
-                if (!ok) cout << "  Too many failed attempts. Returning to main menu.\n";
-                break;
+                if (!passwordValid){ 
+                    cout << "  Too many failed attempts. Returning to main menu.\n";
+                    break;
+                }
             }
-        } else if (choice == 4) {
-            while (true) {
+        }else if (choice == 4){
+            while(true){
                 cout << "  Admin ID: "; cin >> id;
                 int ai = FindAdminIndexByID(id);
                 if (ai == -1) { cout << "  Invalid ID. Try again.\n"; continue; }
 
-                bool ok = false;
+                bool passwordValid = false;
                 for (int att = 0; att < 3; att++) {
                     cout << "  Password: ";
                     getline(cin >> ws, password);
                     if (admins[ai].password == password) {
                         cout << "  Login Successful!\n";
                         adminMenu(ai);
-                        ok = true; break;
+                        passwordValid = true; break;
                     }
                     cout << "  Wrong password (" << (2 - att) << " attempt(s) left).\n";
                 }
-                if (!ok) cout << "  Too many failed attempts. Returning to main menu.\n";
-                break;
+                if (!passwordValid){ 
+                    cout << "  Too many failed attempts. Returning to main menu.\n";
+                    break;
+                }
             }
         } else if (choice == 5) {
             cout << "  Exiting...\n";
