@@ -156,7 +156,7 @@ string getCurrentDate() {
     time_t t = time(0);
     struct tm* now = localtime(&t);
     char buf[11];
-    strftime(buf, sizeof(buf), "%Y-%m-%d", now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d", now); //prevent buffer overflow - "overflow" can cause security vulnerabilities and crashes. Always ensure your buffers are large enough for the data they will hold, including the null terminator.
     return string(buf);
 }
 
@@ -191,8 +191,9 @@ void printHeader(string title) {
 }
 
 // ============================================================
-// INPUT HELPERS
+// INPUT HELPERS. Prompts user for an integer between min and max (inclusive). Repeats until valid input is given.
 // ============================================================
+
 
 int safeInputInt(int min, int max) {
     int n;
@@ -201,7 +202,7 @@ int safeInputInt(int min, int max) {
         if (cin.fail() || n < min || n > max) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Please enter a valid number (" << min << "-" << max << "): ";
+            cout << "Please enter a valid number or character(" << min << "-" << max << "): ";
         } else {
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             return n;
@@ -212,7 +213,7 @@ int safeInputInt(int min, int max) {
 string getValidPassword() {
     string password;
     while (true) {
-        cout << "Password (min 12 chars, upper+lower+digit+special): ";
+        cout << "Password (min 12 chars, upper + lower + digit + special): ";
         getline(cin >> ws, password);
 
         if (password.length() < 12) {
@@ -222,10 +223,15 @@ string getValidPassword() {
 
         bool hasUpper = false, hasLower = false, hasDigit = false, hasSpecial = false;
         for (char c : password) {
-            if      (isupper(c)) hasUpper   = true;
-            else if (islower(c)) hasLower   = true;
-            else if (isdigit(c)) hasDigit   = true;
-            else if (ispunct(c)) hasSpecial = true;
+            if(isupper(c)){
+                hasUpper = true;
+            }else if (islower(c)){
+                hasLower = true;
+            }else if (isdigit(c)){
+                hasDigit = true;
+            }else if (ispunct(c)){
+                hasSpecial = true;
+            }
         }
 
         if (hasUpper && hasLower && hasDigit && hasSpecial) return password;
@@ -284,10 +290,10 @@ void LoadApplicationsFromFile() {
             getline(ss, temp.applyDate,  '|') &&
             getline(ss, temp.applyMonth)) {
             try {
-                temp.months = stoi(monthsStr);
+                temp.months = stoi(monthsStr); //stoi is used to convert string to integer. It throws an exception if the conversion fails (e.g., if the string is not a valid number). By wrapping it in a try-catch block, we can handle such cases gracefully without crashing the program.
                 if (temp.months >= 1 && temp.months <= 3)
                     apps[appsCount++] = temp;
-            } catch (...) {}
+            } catch (...) {} //so if the months field is corrupted in the file, we simply skip that application instead of crashing the program.
         }
     }
 }
@@ -422,7 +428,6 @@ void register_stud() {
 
     stud.id = "S" + to_string(studentCount + 1);
     cout << "  Generated ID: " << stud.id << "\n\n";
-
     cout << "  Name    : "; getline(cin >> ws, stud.name);
     cout << "  Email   : "; getline(cin >> ws, stud.stud_email);
     cout << "  Faculty : "; getline(cin >> ws, stud.faculty);
@@ -544,11 +549,14 @@ void register_application(int index_Student) {
     for (int i = 0; i < vCount; i++) {
         vehicle& v = vehicles[idx[i]];
         string tag;
-        if      (hasPendingOrApprovedForVehicle(v.vehicleID)) tag = " [Pending/Approved]";
-        else if (hasActivePaidPassForVehicle(v.vehicleID))    tag = " [Active pass — use Renew]";
-        else                                                   tag = " [No active pass]";
-        cout << "  " << (i + 1) << ". " << v.plate
-             << " (" << v.type << ")" << tag << "\n";
+        if(hasPendingOrApprovedForVehicle(v.vehicleID)){ 
+            tag = " [Pending/Approved]";
+        }else if(hasActivePaidPassForVehicle(v.vehicleID)){    
+            tag = " [Active pass — use Renew]";
+        }else{
+            tag = " [No active pass]";
+        }
+            cout << "  " << (i + 1) << ". " << v.plate << " (" << v.type << ")" << tag << "\n";
     }
     printLine();
     cout << "  Pick vehicle (1-" << vCount << ", 0 to cancel): ";
@@ -557,11 +565,11 @@ void register_application(int index_Student) {
 
     vehicle& chosen = vehicles[idx[pick - 1]];
 
-    if (hasPendingOrApprovedForVehicle(chosen.vehicleID)) {
+    if(hasPendingOrApprovedForVehicle(chosen.vehicleID)){
         cout << "  This vehicle already has a pending or approved application. Please wait.\n";
         return;
     }
-    if (hasActivePaidPassForVehicle(chosen.vehicleID)) {
+    if(hasActivePaidPassForVehicle(chosen.vehicleID)){
         cout << "  This vehicle has an active pass. Use Option 5 (Renew) instead.\n";
         return;
     }
@@ -579,8 +587,7 @@ void register_application(int index_Student) {
     apps[appsCount++] = APP;
     SaveApplicationsToFile();
 
-    cout << "  Application for " << chosen.plate
-         << " submitted on " << APP.applyDate << ". Pending admin approval.\n";
+    cout << "  Application for " << chosen.plate << " submitted on " << APP.applyDate << ". Pending admin approval.\n";
 }
 
 // ============================================================
@@ -602,9 +609,10 @@ void renew_application(int index_Student) {
     // Only list vehicles that have an active paid pass
     int eligibleIdx[20];
     int eligibleCount = 0;
-    for (int i = 0; i < vCount; i++)
+    for (int i = 0; i < vCount; i++){
         if (hasActivePaidPassForVehicle(vehicles[idx[i]].vehicleID))
             eligibleIdx[eligibleCount++] = idx[i];
+    }
 
     if (eligibleCount == 0) {
         cout << "  No vehicle has an active (paid) pass to renew.\n";
@@ -627,19 +635,22 @@ void renew_application(int index_Student) {
 
     vehicle& chosen = vehicles[eligibleIdx[pick - 1]];
 
-    if (hasPendingOrApprovedForVehicle(chosen.vehicleID)) {
+    if(hasPendingOrApprovedForVehicle(chosen.vehicleID)){
         cout << "  This vehicle already has a pending renewal. Please wait for admin.\n";
         return;
     }
 
     // Find and display the current paid pass for this vehicle
     int paidIdx = -1;
-    for (int i = appsCount - 1; i >= 0; i--)
-        if (apps[i].vehicleID == chosen.vehicleID && apps[i].status == "paid")
-            { paidIdx = i; break; }
+    for (int i = appsCount - 1; i >= 0; i--){
+        if(apps[i].vehicleID == chosen.vehicleID && apps[i].status == "paid"){ 
+            paidIdx = i; 
+            break; 
+        }
+    }
 
     cout << "\n  Active pass details:\n";
-    cout << "  Vehicle    : " << chosen.plate << " (" << chosen.type << ")\n";
+    cout << "  Vehicle    : " << chosen.plate << " ("     << chosen.type << ")\n";
     cout << "  Applied on : " << apps[paidIdx].applyDate  << "\n";
     cout << "  Duration   : " << apps[paidIdx].months     << " month(s)\n";
     printLine();
@@ -667,8 +678,7 @@ void renew_application(int index_Student) {
 
     cout << "  Months to renew (1-3): ";
     renewal.months = safeInputInt(1, 3);
-    cout << "  Estimated cost: RM " << fixed << setprecision(2)
-         << (renewal.months * 30.0) << "\n";
+    cout << "  Estimated cost: RM " << fixed << setprecision(2) << (renewal.months * 30.0) << "\n";
 
     apps[appsCount++] = renewal;
     SaveApplicationsToFile();
@@ -701,13 +711,13 @@ void ViewStudentProfile(int index_Student) {
     int idx[20];
     int vCount = getVehiclesForStudent(s.id, idx, 20);
 
-    if (vCount == 0) {
+    if (vCount == 0){
         cout << "  No vehicles registered.\n";
-    } else {
+    }else{
         cout << "  " << left << setw(10) << "VehicleID"
-                              << setw(14) << "Plate"
-                              << setw(14) << "Type"
-                              << "Linked Application\n";
+                             << setw(14) << "Plate"
+                             << setw(14) << "Type"
+                             << "Linked Application\n";
         printLine();
 
         for (int i = 0; i < vCount; i++) {
@@ -716,13 +726,12 @@ void ViewStudentProfile(int index_Student) {
             // Find most recent active (non-rejected/expired) application for this vehicle
             string appInfo = "None";
             for (int j = appsCount - 1; j >= 0; j--) {
-                if (apps[j].vehicleID == v.vehicleID &&
-                    apps[j].status != "rejected" && apps[j].status != "expired") {
+                if (apps[j].vehicleID == v.vehicleID && apps[j].status != "rejected" && apps[j].status != "expired"){
                     appInfo = "AppIdx:" + to_string(j) + " [" + apps[j].status + "]";
                     break;
                 }
             }
-            cout << "  " << left << setw(10) << v.vehicleID
+            cout << "  " << left  << setw(10) << v.vehicleID
                                   << setw(14) << v.plate
                                   << setw(14) << v.type
                                   << appInfo  << "\n";
@@ -742,11 +751,11 @@ void UpdateStudentProfile(int index_Student) {
     cout << "  Change Password? (y/n): ";
     cin >> changePass;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    if (changePass == 'y' || changePass == 'Y')
+    if (changePass == 'y' || changePass == 'Y'){
         students[index_Student].password = getValidPassword();
-    else
+    }else{
         cout << "  Password unchanged.\n";
-
+    }
     SaveStudentsToFile();
     cout << "  Profile updated successfully!\n";
 }
@@ -758,7 +767,7 @@ void UpdateStudentProfile(int index_Student) {
 void AdminViewStudentProfile(int index_Admin) {
     printHeader("View Student Profile");
 
-    if (studentCount == 0) {
+    if(studentCount == 0){
         cout << "  No students registered.\n";
         return;
     }
@@ -769,11 +778,12 @@ void AdminViewStudentProfile(int index_Admin) {
                          << setw(22) << "Name"
                          << "Faculty\n";
     printLine();
-    for (int i = 0; i < studentCount; i++)
+    for(int i = 0; i < studentCount; i++){
         cout << "  " << left << setw(6)  << (i + 1)
                               << setw(8)  << students[i].id
                               << setw(22) << students[i].name
                               << students[i].faculty << "\n";
+    }
     printLine();
 
     cout << "  Select student number (0 to cancel): ";
@@ -795,9 +805,9 @@ void AdminViewStudentProfile(int index_Admin) {
     printLine();
     int idx[20];
     int vCount = getVehiclesForStudent(s.id, idx, 20);
-    if (vCount == 0) {
+    if(vCount == 0){
         cout << "  No vehicles registered.\n";
-    } else {
+    }else{
         cout << "  " << left << setw(10) << "VehicleID"
                               << setw(16) << "Plate"
                               << setw(14) << "Type"
@@ -853,10 +863,11 @@ void UpdatesAdminProfile(int index_Admin) {
     cout << "  Change Password? (y/n): ";
     cin >> changePass;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    if (changePass == 'y' || changePass == 'Y')
+    if (changePass == 'y' || changePass == 'Y'){
         admins[index_Admin].password = getValidPassword();
-    else
+    }else{
         cout << "  Password unchanged.\n";
+    }
 
     SaveAdminToFile();
     cout << "  Admin profile updated successfully!\n";
@@ -879,7 +890,7 @@ void viewApplicationHistory(int index_Student) {
                          << "Status\n";
     printLine();
 
-    for (int i = 0; i < appsCount; i++) {
+    for(int i = 0; i < appsCount; i++){
         if (apps[i].studentID != id) continue;
         found = true;
 
@@ -893,7 +904,7 @@ void viewApplicationHistory(int index_Student) {
                               << apps[i].status << "\n";
 
         // Prompt payment for approved applications
-        if (apps[i].status == "approved") {
+        if(apps[i].status == "approved"){
             printLine();
             cout << "  APPROVED — " << plate << " | "
                  << apps[i].months << " month(s) | RM "
@@ -961,14 +972,14 @@ void monthEndAlert(int index_Student) {
 void ViewProfileAdmin(int index_Admin) {
     printHeader("Admin Process Applications");
     cout << "  Admin ID : " << admins[index_Admin].adminID << "\n";
-    cout << "  Name     : " << admins[index_Admin].name    << "\n\n";
+    cout << "  Name     : " << admins[index_Admin].name << "\n\n";
     cout << "  ------------ Pending Applications ------------\n";
 
-    cout << "  " << left << setw(7)  << "Index"
-                         << setw(9)  << "StudID"
+    cout << "  " << left << setw(7) << "Index"
+                         << setw(9) << "StudID"
                          << setw(12) << "Vehicle"
                          << setw(12) << "Date"
-                         << setw(8)  << "Months"
+                         << setw(8) << "Months"
                          << "Status\n";
     printLine();
 
@@ -978,11 +989,11 @@ void ViewProfileAdmin(int index_Admin) {
         found = true;
         int vehicle_index = FindVehicleIndexByID(apps[i].vehicleID);
         string plate = (vehicle_index != -1) ? vehicles[vehicle_index].plate : apps[i].vehicleID;
-        cout << "  " << left << setw(7)  << i
-                              << setw(9)  << apps[i].studentID
-                              << setw(12) << plate
-                              << setw(12) << apps[i].applyDate
-                              << setw(8)  << apps[i].months
+        cout << "  " << left  << setw(7) << i
+                              << setw(9) << apps[i].studentID
+                              << setw(12)<< plate
+                              << setw(12)  << apps[i].applyDate
+                              << setw(8) << apps[i].months
                               << apps[i].status << "\n";
     }
 
@@ -1012,8 +1023,8 @@ void approveRejectApplication(int app_index) {
     string plate = (vi != -1) ? vehicles[vi].plate : apps[app_index].vehicleID;
 
     cout << "\n  Student  : " << apps[app_index].studentID << "\n";
-    cout << "  Vehicle  : " << plate                       << "\n";
-    cout << "  Duration : " << apps[app_index].months      << " month(s)\n";
+    cout << "  Vehicle  : " << plate << "\n";
+    cout << "  Duration : " << apps[app_index].months << " month(s)\n";
     cout << "\n  1. Approve\n  2. Reject\n  Decision: ";
     int decision = safeInputInt(1, 2);
 
