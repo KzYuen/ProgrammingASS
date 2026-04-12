@@ -62,9 +62,9 @@ int appsCount    = 0;
 int adminCount   = 0;
 
 // Faculty table — change display names here without touching any other code
-const string FAC_CODES[4]  = { "A",      "B",    "C",     "D"    };
-const string FAC_LABELS[4] = { "A-FCCI", "B-FEB","C-FEGT","D-FAM" };
-const int    FAC_COUNT = 4;
+const string FAC_CODES[9]  = { "A",      "B",    "C",     "D",    "E",    "F",    "G",    "H",    "I" };
+const string FAC_LABELS[9] = { "A- M. Kandiah Faculty of Medicine and Health Sciences", "B-Lee Kong Chian Faculty of Engineering and Science", "C-Faculty of Engineering and Green Technologies", "D-Faculty of Information and Communication Technology", "E-Faculty of Science", "F-Faculty of Accountancy and Management", "G-Teh Hong Piow Faculty of Business and Finance", "H-Faculty of Arts and Social Sciences", "I-Faculty of Creative Industries" };
+const int    FAC_COUNT = 9;
 
 // ============================================================
 // FORWARD DECLARATIONS
@@ -251,21 +251,26 @@ string getValidPassword() {
             else if (isdigit(c)) hasD = true;
             else if (ispunct(c)) hasS = true;
         }
-        if (hasU && hasL && hasD && hasS) return pw;
+        if (hasU && hasL && hasD && hasS){
+             return pw; 
+        }
         cout << "  Must include uppercase, lowercase, digit, and special character.\n";
     }
 }
 
-// Forces the user to enter a valid faculty code (A-D).
+// Forces the user to enter a valid faculty code (A-I).
 string getValidFaculty() {
     string fac;
     while (true) {
-        cout << "  Faculty — A:FCCI  B:FEB  C:FEGT  D:FAM — Enter code: ";
+        cout << "  Faculty — A:M. Kandiah  B:Lee Kong Chian  C:FEG  D:FICT  E:FAS  F:FAM  G:Teh Hong Piow  H:FAS  I:FCI — Enter code: ";
         getline(cin >> ws, fac);
-        for (char& c : fac) c = toupper(c);
-        for (int i = 0; i < FAC_COUNT; i++)
+        for (char& c : fac){
+             c = toupper(c);
+        }
+        for (int i = 0; i < FAC_COUNT; i++){
             if (FAC_CODES[i] == fac) return fac;
-        cout << "  Invalid faculty. Please enter A, B, C, or D.\n";
+        }
+        cout << "  Invalid faculty. Please enter A, B, C, D, E, F, G, H, or I.\n";
     }
 }
 
@@ -702,8 +707,12 @@ void renew_application(int index_Student) {
     cout << "  Confirm renewal? (y/n): ";
     cin >> confirm;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    if (confirm != 'y' && confirm != 'Y') { cout << "  Renewal cancelled.\n"; return; }
-    if (appsCount >= 400) { cout << "  System full.\n"; return; }
+    if(confirm != 'y' && confirm != 'Y'){ 
+        cout << "  Renewal cancelled.\n"; return; 
+    }
+    if(appsCount >= 400){ 
+        cout << "  System full.\n"; return; 
+    }
 
     application renewal;
     renewal.studentID  = studentID;
@@ -755,8 +764,7 @@ void ViewStudentProfile(int index_Student) {
             vehicle& v = vehicles[idx[i]];
             string appInfo = "None";
             for (int j = appsCount - 1; j >= 0; j--) {
-                if (apps[j].vehicleID == v.vehicleID &&
-                    apps[j].status != "rejected" && apps[j].status != "expired") {
+                if (apps[j].vehicleID == v.vehicleID && apps[j].status != "rejected" && apps[j].status != "expired") {
                     appInfo = "App#" + to_string(j) + " [" + apps[j].status + "]";
                     break;
                 }
@@ -863,13 +871,19 @@ void viewApplicationHistory(int index_Student) {
         if (apps[i].status == "paid") {
             myPaidMonths += apps[i].months;
             myTotalSpent += apps[i].months * 30.0;
-            for (int m = 0; m < 12; m++)
+            for (int m = 0; m < 12; m++){
                 if (apps[i].applyMonth == mLabels[m])
-                    { monthSpend[m] += apps[i].months * 30.0; break; }
+                    { monthSpend[m] += apps[i].months * 30.0; 
+                        break; 
+                    }
+            } 
         }
     }
 
-    if (!found) { cout << "  No applications found.\n"; return; }
+    if(!found){ 
+        cout << "  No applications found.\n"; 
+        return; 
+    }
 
     // ── Personal transaction summary ──────────────────────────────
     printLine();
@@ -877,8 +891,7 @@ void viewApplicationHistory(int index_Student) {
     cout << "  New applications  : " << myNewApps    << "\n";
     cout << "  Renewals          : " << myRenewals   << "\n";
     cout << "  Total months paid : " << myPaidMonths << "\n";
-    cout << "  Total spent       : RM "
-         << fixed << setprecision(2) << myTotalSpent << "\n";
+    cout << "  Total spent       : RM " << fixed << setprecision(2) << myTotalSpent << "\n";
 
     if (myPaidMonths > 0) {
         cout << "  Avg cost/month    : RM "
@@ -886,13 +899,15 @@ void viewApplicationHistory(int index_Student) {
     }
 
     // ── Monthly spend breakdown ───────────────────────────────────
-    cout << "\n  MONTHLY PAYMENT HISTORY (last 12 months)\n"; printLine();
+    cout << "\n  MONTHLY PAYMENT HISTORY (last 12 months)\n"; 
+    printLine();
     bool anyPayment = false;
     int maxSpend = 1;
-    for (int m = 0; m < 12; m++) if (monthSpend[m] > maxSpend) maxSpend = (int)monthSpend[m];
-
-    for (int m = 0; m < 12; m++) {
-        if (monthSpend[m] == 0) continue;
+    for(int m = 0; m < 12; m++){ 
+        if (monthSpend[m] > maxSpend) maxSpend = (int)monthSpend[m];
+    }
+    for(int m = 0; m < 12; m++){
+        if(monthSpend[m] == 0) continue;
         anyPayment = true;
         int bar = (int)(monthSpend[m] * 20 / maxSpend);
         cout << "  " << mLabels[m] << " RM"
@@ -900,13 +915,21 @@ void viewApplicationHistory(int index_Student) {
         for (int j = 0; j < bar; j++) cout << "#";
         cout << "\n";
     }
-    if (!anyPayment) cout << "  No payments in the last 12 months.\n";
+    if(!anyPayment){
+        cout << "  No payments in the last 12 months.\n";
+    }
 
     // ── Trend note ────────────────────────────────────────────────
-    if (myRenewals > 0 && myNewApps > 0) {
+    if(myRenewals > 0 && myNewApps > 0){
         double renewalRate = (double)myRenewals / (myNewApps + myRenewals) * 100.0;
         cout << "\n  Your renewal rate: " << fixed << setprecision(0) << renewalRate << "%";
-        if (renewalRate >= 80) cout << "  (Very consistent user!)";
+        if(renewalRate >= 80){
+            cout << "  (Very consistent user!)";
+        }else if(renewalRate >= 50){
+            cout << "  (Average User!.)";
+        }else{
+            cout << "  (Mostly new applications.)";
+        }
         cout << "\n";
     }
 
@@ -956,7 +979,10 @@ void ViewProfileAdmin(int index_Admin) {
                               << appType  << "\n";
     }
 
-    if (!found) { cout << "  No pending applications.\n"; return; }
+    if(!found){ 
+        cout << "  No pending applications.\n"; 
+        return; 
+    }
 
     cout << "\n  Enter index to process (-1 to cancel): ";
     int choice = safeInputInt(-1, appsCount - 1);
@@ -1233,9 +1259,10 @@ void generateSummaryReport(int index_Admin) {
     int peakMonth = 0;
     for (int m = 0; m < 12; m++) {
         cout << "  " << left << setw(10) << mLabels[m];
-        for (int f = 0; f < FAC_COUNT; f++) cout << setw(10) << facMonthApps[f][m];
-        cout << setw(8) << monthTotal[m]
-             << "RM " << fixed << setprecision(0) << (double)monthRevenue[m] << "\n";
+        for (int f = 0; f < FAC_COUNT; f++){
+            cout << setw(10) << facMonthApps[f][m];
+            cout << setw(8) << monthTotal[m] << "RM " << fixed << setprecision(0) << (double)monthRevenue[m] << "\n";
+        }
         if (monthTotal[m] > monthTotal[peakMonth]) peakMonth = m;
     }
     printLine();
@@ -1269,22 +1296,18 @@ void generateSummaryReport(int index_Admin) {
     cout << "\n  ================================================\n";
     cout << "  SECTION 4: Negotiation Insights (UTAR vs MPKJ)\n";
     cout << "  ================================================\n";
-    cout << "  1. " << activeNow << " students actively use MPKJ passes — "
-         << "steady guaranteed revenue for MPKJ.\n";
-    cout << "  2. Utilisation of " << fixed << setprecision(1) << utilRate
-         << "% shows consistent, predictable demand.\n";
-    if (facTotal[peakFac] > 0)
-        cout << "  3. Highest demand from " << FAC_LABELS[peakFac]
-             << " — consider faculty-bundle pricing.\n";
-    cout << "  4. Peak application month: " << mLabels[peakMonth]
-         << " — helps MPKJ plan capacity.\n";
-    cout << "  5. Avg " << fixed << setprecision(1) << avgMonths
-         << " months per pass — students prefer short-term; bulk discounts\n"
-         << "     for 3-month passes could increase revenue and loyalty.\n";
-    cout << "  6. Total RM " << fixed << setprecision(2) << (double)totalRevenue
-         << " paid — demonstrates UTAR's collective bargaining power.\n";
+    cout << "  1. " << activeNow << " students actively use MPKJ passes — " << "steady guaranteed revenue for MPKJ.\n";
+    cout << "  2. Utilisation of " << fixed << setprecision(1) << utilRate << "% shows consistent, predictable demand.\n";
+    if(facTotal[peakFac] > 0){
+        cout << "  3. Highest demand from " << FAC_LABELS[peakFac] << " — consider faculty-bundle pricing.\n"; 
+        cout << "  4. Peak application month: " << mLabels[peakMonth] << " — helps MPKJ plan capacity.\n";
+        cout << "  5. Avg " << fixed << setprecision(1) << avgMonths << " months per pass — students prefer short-term; bulk discounts\n"
+             << "     for 3-month passes could increase revenue and loyalty.\n";
+        cout << "  6. Total RM " << fixed << setprecision(2) << (double)totalRevenue
+            << " paid — demonstrates UTAR's collective bargaining power.\n";
     printLine();
     cout << "  [End of Report]\n";
+    }
 }
 
 // ============================================================
