@@ -12,6 +12,7 @@
 #include <cctype>
 #include <iomanip>
 #include <ctime>
+#include <cstring> 
 #include <sstream>
 #include <limits>
 #include <cmath>
@@ -69,9 +70,9 @@ int appsCount    = 0;
 int adminCount   = 0;
 
 // Faculty table — change display names here without touching any other code
-const string FAC_CODES[9]  = { "A",      "B",    "C",     "D",    "E",    "F",    "G",    "H",    "I" };
-const string FAC_LABELS[9] = { "A- M. Kandiah Faculty of Medicine and Health Sciences", "B-Lee Kong Chian Faculty of Engineering and Science", "C-Faculty of Engineering and Green Technologies", "D-Faculty of Information and Communication Technology", "E-Faculty of Science", "F-Faculty of Accountancy and Management", "G-Teh Hong Piow Faculty of Business and Finance", "H-Faculty of Arts and Social Sciences", "I-Faculty of Creative Industries" };
-const int    FAC_COUNT = 9;
+const string FAC_CODES[10] = { "A",      "B",    "C",     "D",    "E",    "F",    "G",    "H",    "I",    "J" };
+const string FAC_LABELS[10] = { "A- M. Kandiah Faculty of Medicine and Health Sciences", "B-Lee Kong Chian Faculty of Engineering and Science", "C-Faculty of Engineering and Green Technologies", "D-Faculty of Information and Communication Technology", "E-Faculty of Science", "F-Faculty of Accountancy and Management", "G-Faculty of Chinese Studies", "H-Centre for Foundation Studies", "I-Faculty of Creative Industries", "J-Faculty of Education" };
+const int    FAC_COUNT = 10;
 
 // ============================================================
 // FORWARD DECLARATIONS
@@ -873,7 +874,7 @@ void viewApplicationHistory(int index_Student) {
         if (apps[i].status == "approved") {
             printLine();
             cout << "  APPROVED — " << plate << " | "
-                 << apps[i].months << " month(s) | RM "
+                 << apps[i].months  << " month(s) | RM "
                  << fixed << setprecision(2) << (apps[i].months * 30.0) << "\n";
             char pay;
             cout << "  Pay now? (y/n): ";
@@ -1200,18 +1201,28 @@ void generateSummaryReport(int index_Admin) {
     cout << "  Date         : " << getCurrentDate() << "\n\n";
 
     // Build 12-month and 12-month labels
-    string mLabels[12]; buildMonthLabels(mLabels, 12);
+    string mLabels[12]; 
+    buildMonthLabels(mLabels, 12);
 
     // Per-faculty, per-month matrix
-    int facMonthApps[FAC_COUNT][12]     = {};
-    int facTotal[FAC_COUNT]             = {0};
-    int facNew[FAC_COUNT]               = {0};
-    int facRenew[FAC_COUNT]             = {0};
-    int facPaidMonths[FAC_COUNT]        = {0};
-    int facRevenue[FAC_COUNT]           = {0};
+    int facMonthApps[FAC_COUNT][12];     
+    int facTotal[FAC_COUNT];            
+    int facNew[FAC_COUNT];               
+    int facRenew[FAC_COUNT];             
+    int facPaidMonths[FAC_COUNT];        
+    int facRevenue[FAC_COUNT];           
+    int monthTotal[12];      
+    int monthRevenue[12];  
+    
+    memset(facMonthApps, 0, sizeof(facMonthApps));
+    memset(facTotal, 0, sizeof(facTotal));
+    memset(facNew, 0, sizeof(facNew));
+    memset(facRenew, 0, sizeof(facRenew));
+    memset(facPaidMonths, 0, sizeof(facPaidMonths));
+    memset(facRevenue, 0, sizeof(facRevenue));
+    memset(monthTotal, 0, sizeof(monthTotal));
+    memset(monthRevenue, 0, sizeof(monthRevenue));
 
-    int monthTotal[12]          = {0};
-    int monthRevenue[12]        = {0};
     int totalRevenue            = 0;
     int paidCount               = 0;
     int totalPaidMonths         = 0;
@@ -1219,8 +1230,10 @@ void generateSummaryReport(int index_Admin) {
     for (int i = 0; i < appsCount; i++) {
         int fi = facultyIndex(apps[i].faculty);
         if (fi != -1) {
+
             facTotal[fi]++;
             if (isRenewalApp(i)) facRenew[fi]++; else facNew[fi]++;
+            
             if (apps[i].status == "paid") {
                 facPaidMonths[fi] += apps[i].months;
                 facRevenue[fi]    += apps[i].months * 30;
@@ -1278,7 +1291,10 @@ void generateSummaryReport(int index_Admin) {
     cout << "  SECTION 2: Monthly Volume by Faculty (last 12 months)\n";
     cout << "  ================================================\n";
     cout << "  " << left << setw(10) << "Month";
-    for (int f = 0; f < FAC_COUNT; f++) cout << setw(10) << FAC_LABELS[f].substr(0,6);
+    for (int f = 0; f < FAC_COUNT; f++) 
+    {
+        cout << setw(10) << FAC_LABELS[f].substr(0,6);
+    }
     cout << setw(8) << "Total" << "Revenue\n";
     printLine();
 
