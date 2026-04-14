@@ -265,8 +265,8 @@ string getValidPassword() {
         cout << "  Must include uppercase, lowercase, digit, and special character.\n";
     }
 }
-//Happylygay2020#
-// Forces the user to enter a valid faculty code (A-I).
+
+// Forces the user to enter a valid faculty code (A-J).
 string getValidFaculty() {
     string fac;
     while (true) {
@@ -1130,8 +1130,9 @@ void statisticsUsage(int index_Admin) {
     cout << "  FACULTY BREAKDOWN\n"; printLine();
 
     int peakFac = 0;
-    for (int f = 1; f < FAC_COUNT; f++)
+    for (int f = 1; f < FAC_COUNT; f++){
         if (facApps[f] > facApps[peakFac]) peakFac = f;
+    }
 
     cout << "  " << left
          << setw(12) << "Faculty"
@@ -1159,18 +1160,27 @@ void statisticsUsage(int index_Admin) {
     cout << "\n  FACULTY CHART\n"; printLine();
     for (int f = 0; f < FAC_COUNT; f++) {
         cout << "  " << left << setw(10) << FAC_LABELS[f] << ": ";
-        for (int j = 0; j < facApps[f] && j < 40; j++) cout << "#";
-        if (facApps[f] > 40) cout << "+";
+        for (int j = 0; j < facApps[f] && j < 40; j++) {
+            cout << "#";
+        }
+        if (facApps[f] > 40) {
+            cout << "+";
+        }
         cout << "  (" << facApps[f] << ")\n";
     }
 
     // ── Duration breakdown ────────────────────────────────────────
     printLine();
-    cout << "  BY PASS DURATION\n"; printLine();
+    cout << "  BY PASS DURATION\n";
+    printLine();
     for (int m = 1; m <= 3; m++) {
         cout << "  " << m << " month(s) : ";
-        for (int j = 0; j < durationCount[m] && j < 40; j++) cout << "#";
-        if (durationCount[m] > 40) cout << "+";
+        for (int j = 0; j < durationCount[m] && j < 40; j++){
+            cout << "#";
+        }
+        if (durationCount[m] > 40){
+            cout << "+";
+        } 
         cout << "  (" << durationCount[m] << ")\n";
     }
 
@@ -1179,11 +1189,15 @@ void statisticsUsage(int index_Admin) {
     cout << "  MONTHLY APPLICATION TREND (last 12 months)\n"; printLine();
     // normalise bar chart so the highest value fills 30 chars, to keep it visually balanced regardless of volume
     int maxBar = 1;
-    for (int m = 0; m < 12; m++) if (monthApps[m] > maxBar) maxBar = monthApps[m];
+    for (int m = 0; m < 12; m++){
+        if (monthApps[m] > maxBar) maxBar = monthApps[m];
+    }
     for (int m = 0; m < 12; m++) {
         int bar = (monthApps[m] * 30) / maxBar;
         cout << "  " << mLabels[m] << " ";
-        for (int j = 0; j < bar; j++) cout << "#";
+        for (int j = 0; j < bar; j++) {
+            cout << "#";
+        }
         cout << "  (" << monthApps[m] << " apps, RM "
              << fixed << setprecision(0) << (double)monthRevenue[m] << ")\n";
     }
@@ -1203,30 +1217,28 @@ void generateSummaryReport(int index_Admin) {
     string mLabels[12];
     buildMonthLabels(mLabels, 12);
 
-    // Hard-coded to 10 — FAC_COUNT as const int makes a VLA
-    // and = {} is silently ignored, leaving garbage on the stack
-    int facMonthApps[10][12];
-    int facTotal[10], facNew[10], facRenew[10];
-    int facPaidMonths[10], facRevenue[10];
-    int monthTotal[12], monthRevenue[12];
-
-    memset(facMonthApps,  0, sizeof(facMonthApps));
-    memset(facTotal,      0, sizeof(facTotal));
-    memset(facNew,        0, sizeof(facNew));
-    memset(facRenew,      0, sizeof(facRenew));
-    memset(facPaidMonths, 0, sizeof(facPaidMonths));
-    memset(facRevenue,    0, sizeof(facRevenue));
-    memset(monthTotal,    0, sizeof(monthTotal));
-    memset(monthRevenue,  0, sizeof(monthRevenue));
+    int facMonthApps[FAC_COUNT][12]={0};
+    int facTotal[FAC_COUNT]={0};
+    int facNew[FAC_COUNT]={0};
+    int facRenew[FAC_COUNT]={0};
+    int facPaidMonths[FAC_COUNT]={0};
+    int facRevenue[FAC_COUNT]={0};
+    int monthTotal[12]={0};
+    int monthRevenue[12]={0};
 
     int totalRevenue = 0, paidCount = 0, totalPaidMonths = 0;
 
     for (int i = 0; i < appsCount; i++) {
         int fi = facultyIndex(apps[i].faculty);
-        if (fi == -1) continue;
-
+        if (fi == -1){
+            continue;
+        }
         facTotal[fi]++;
-        if (isRenewalApp(i)) facRenew[fi]++; else facNew[fi]++;
+        if (isRenewalApp(i)){
+            facRenew[fi]++; 
+        } else {
+            facNew[fi]++;
+        }
 
         if (apps[i].status == "paid") {
             facPaidMonths[fi] += apps[i].months;
@@ -1240,21 +1252,30 @@ void generateSummaryReport(int index_Admin) {
             if (apps[i].applyMonth == mLabels[m]) {
                 facMonthApps[fi][m]++;
                 monthTotal[m]++;
-                if (apps[i].status == "paid")
+                if (apps[i].status == "paid"){
                     monthRevenue[m] += apps[i].months * 30;
+                }
                 break;
             }
         }
     }
 
+    if (appsCount == 0) {
+        cout << "  No applications data available yet.\n";
+        printLine('=', 55);
+        cout << " [End of Report]\n";
+        return;
+    }
+
     int peakFac = 0;
-    for (int f = 1; f < FAC_COUNT; f++)
+    for (int f = 1; f < FAC_COUNT; f++){
         if (facTotal[f] > facTotal[peakFac]) peakFac = f;
+    }
 
     int peakMonth = 0;
-    for (int m = 1; m < 12; m++)
+    for (int m = 1; m < 12; m++){
         if (monthTotal[m] > monthTotal[peakMonth]) peakMonth = m;
-
+    }
     // ── SECTION 1: faculty name on its own line, stats on next line ──
     cout << "  ================================================\n";
     cout << "  SECTION 1: Application Averages by Faculty\n";
@@ -1287,9 +1308,10 @@ void generateSummaryReport(int index_Admin) {
 
     cout << "\n";
     printLine('=', 55);
-    if (facTotal[peakFac] > 0)
+    if (facTotal[peakFac] > 0){
         cout << "  Highest demand: [" << FAC_CODES[peakFac]
              << "] " << FAC_LABELS[peakFac] << "\n";
+    }
 
     // ── SECTION 2: split into two sub-tables (A-E and F-J) ──────────
     // 10 faculties + month + total + revenue is too wide for one row
@@ -1300,15 +1322,17 @@ void generateSummaryReport(int index_Admin) {
     // Sub-table 1: A to E (indices 0-4)
     cout << "\n  [ Faculties A to E ]\n";
     cout << "  " << left << setw(10) << "Month";
-    for (int f = 0; f < 5 && f < FAC_COUNT; f++)
+    for (int f = 0; f < 5 && f < FAC_COUNT; f++){
         cout << setw(6) << ("[" + FAC_CODES[f] + "]");
+    }
     cout << "  Total\n";
     printLine('-', 46);
 
     for (int m = 0; m < 12; m++) {
         cout << "  " << left << setw(10) << mLabels[m];
-        for (int f = 0; f < 5 && f < FAC_COUNT; f++)
+        for (int f = 0; f < 5 && f < FAC_COUNT; f++){
             cout << setw(6) << facMonthApps[f][m];  // NO \n here
+        }
         cout << "  " << monthTotal[m] << "\n";       // \n only once per month
     }
     printLine('-', 46);
@@ -1317,31 +1341,39 @@ void generateSummaryReport(int index_Admin) {
     if (FAC_COUNT > 5) {
         cout << "\n  [ Faculties F to " << FAC_CODES[FAC_COUNT - 1] << " ]\n";
         cout << "  " << left << setw(10) << "Month";
-        for (int f = 5; f < FAC_COUNT; f++)
+        for (int f = 5; f < FAC_COUNT; f++){
             cout << setw(6) << ("[" + FAC_CODES[f] + "]");
+        }
         cout << "  Revenue\n";
         printLine('-', 44);
 
         for (int m = 0; m < 12; m++) {
             cout << "  " << left << setw(10) << mLabels[m];
-            for (int f = 5; f < FAC_COUNT; f++)
+            for (int f = 5; f < FAC_COUNT; f++){
                 cout << setw(6) << facMonthApps[f][m];  // NO \n here
-            cout << "  RM " << fixed << setprecision(0)
+            }
+            cout << "  RM " << right << fixed << setprecision(0)
                  << (double)monthRevenue[m] << "\n";    // \n only once per month
         }
         printLine('-', 44);
     }
 
     cout << "\n  Faculty Code Reference:\n";
-    for (int f = 0; f < FAC_COUNT; f++)
+    for (int f = 0; f < FAC_COUNT; f++){
         cout << "    [" << FAC_CODES[f] << "] " << FAC_LABELS[f] << "\n";
-    cout << "\n  Peak month: " << mLabels[peakMonth]
+    }
+    if (monthTotal[peakMonth] > 0){
+        cout << "\n  Peak month: " << mLabels[peakMonth]
          << " (" << monthTotal[peakMonth] << " apps)\n";
+    } else {
+        cout << "\n Peak month: No data yet.\n";
+    }
 
     // ── SECTION 3: Utilisation ───────────────────────────────────────
     int activeNow = 0;
-    for (int i = 0; i < appsCount; i++)
+    for (int i = 0; i < appsCount; i++){
         if (apps[i].status == "paid" || apps[i].status == "approved") activeNow++;
+    }
 
     double utilRate  = studentCount > 0
         ? (double)activeNow / studentCount * 100.0 : 0.0;
@@ -1359,10 +1391,18 @@ void generateSummaryReport(int index_Admin) {
          << fixed << setprecision(1) << utilRate << "%\n";
     cout << "  Total revenue collected   : RM "
          << fixed << setprecision(2) << (double)totalRevenue  << "\n";
-    cout << "  Avg months per paid pass  : "
-         << fixed << setprecision(1) << avgMonths << "\n";
-    cout << "  Avg monthly revenue       : RM "
-         << fixed << setprecision(2) << (totalRevenue / 12.0) << "\n";
+    cout << "  Avg months per paid pass  : ";
+    if (paidCount > 0) {
+        cout << fixed << setprecision(1) << avgMonths << "\n";
+    } else {
+        cout << "N/A (no paid passes yet)\n";
+    }   
+    cout << "  Avg monthly revenue       : RM ";
+    if (totalRevenue > 0) {
+        cout << fixed << setprecision(2) << (totalRevenue / 12.0) << "\n";
+    } else {
+        cout << "0.00\n";
+    }
     printLine('-', 55);
 
     // ── SECTION 4: Negotiation insights ─────────────────────────────
@@ -1370,23 +1410,34 @@ void generateSummaryReport(int index_Admin) {
     cout << "  SECTION 4: Negotiation Insights (UTAR vs MPKJ)\n";
     cout << "  ================================================\n";
     printLine('-', 55);
-    cout << "  1. " << activeNow
-         << " students actively using MPKJ passes = steady revenue.\n";
-    cout << "  2. Utilisation rate of "
-         << fixed << setprecision(1) << utilRate
-         << "% shows consistent demand.\n";
-    if (facTotal[peakFac] > 0)
-        cout << "  3. Highest demand from [" << FAC_CODES[peakFac] << "] "
+
+    if (activeNow == 0) {
+        cout << "  No active passes yet — insufficient data for insights.\n";
+        printLine('=', 55);
+        cout << "  [End of Report]\n";
+        return;
+    } else {
+        cout << "  1. " << activeNow
+             << " students actively using MPKJ passes = steady revenue.\n";
+        cout << "  2. Utilisation rate of "
+             << fixed << setprecision(1) << utilRate
+             << "% shows consistent demand.\n";
+        if (facTotal[peakFac] > 0){
+            cout << "  3. Highest demand from [" << FAC_CODES[peakFac] << "] "
              << FAC_LABELS[peakFac]
              << "\n     -- consider faculty-bundle pricing.\n";
-    cout << "  4. Peak month: " << mLabels[peakMonth]
-         << " -- useful for MPKJ capacity planning.\n";
-    cout << "  5. Avg " << fixed << setprecision(1) << avgMonths
-         << " months/pass -- bulk discount for 3-month passes\n"
-         << "     could increase revenue and student loyalty.\n";
-    cout << "  6. Total RM " << fixed << setprecision(2)
-         << (double)totalRevenue
-         << " paid -- demonstrates UTAR's bargaining power.\n";
+        }
+        if (monthTotal[peakMonth] > 0){
+            cout << "  4. Peak month: " << mLabels[peakMonth]
+             << "     -- useful for MPKJ capacity planning.\n";
+        }
+        cout << "  5. Avg " << fixed << setprecision(1) << avgMonths
+             << " months/pass -- bulk discount for 3-month passes\n"
+             << "     could increase revenue and student loyalty.\n";
+        cout << "  6. Total RM " << fixed << setprecision(2)
+             << (double)totalRevenue
+             << " paid -- demonstrates UTAR's bargaining power.\n";
+    }
     printLine('=', 55);
     cout << "  [End of Report]\n";
 }
@@ -1397,7 +1448,9 @@ void generateSummaryReport(int index_Admin) {
 
 void adminViewStudentProfile(int index_Admin) {
     printHeader("Admin: View Student Profile");
-    if (studentCount == 0) { cout << "  No students registered.\n"; return; }
+    if (studentCount == 0) {
+        cout << "  No students registered.\n"; return;
+    }
 
     cout << "  " << left << setw(6) << "No."
                          << setw(8) << "ID"
@@ -1405,17 +1458,20 @@ void adminViewStudentProfile(int index_Admin) {
                          << setw(10) << "Faculty"
                          << "Phone\n";
     printLine();
-    for (int i = 0; i < studentCount; i++)
+    for (int i = 0; i < studentCount; i++) {
         cout << "  " << left << setw(6)  << (i + 1)
                               << setw(8)  << students[i].id
                               << setw(22) << students[i].name
                               << setw(10) << students[i].faculty
                               << students[i].phone << "\n";
+    }
     printLine();
 
     cout << "  Select student (0 to cancel): ";
     int pick = safeInputInt(0, studentCount);
-    if (pick == 0) return;
+    if (pick == 0) {
+        return;
+    }
 
     student& s = students[pick - 1];
     printLine('=');
