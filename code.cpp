@@ -72,20 +72,21 @@ int appsCount    = 0;
 int adminCount   = 0;
 
 // Faculty table — change display names here without touching any other code
-const string FAC_CODES[10]  = { "A",    "B",    "C",    "D",    "E",    "F",    "G",    "H",    "I",    "J" };
-const string FAC_LABELS[10] = {
-    "A- M. Kandiah Faculty of Medicine and Health Sciences",
-    "B-Lee Kong Chian Faculty of Engineering and Science",
-    "C-Faculty of Engineering and Green Technologies",
-    "D-Faculty of Information and Communication Technology",
-    "E-Faculty of Science",
-    "F-Faculty of Accountancy and Management",
-    "G-Faculty of Chinese Studies",
-    "H-Centre for Foundation Studies",
-    "I-Faculty of Creative Industries",
-    "J-Faculty of Education"
+const string FAC_CODES[11]  = { "A",    "B",    "C",    "D",    "E",    "F",    "G",    "H",    "I",    "J",   "K" };
+const string FAC_LABELS[11] = {
+    "A- M. Kandiah Faculty of Medicine and Health Sciences (MKF FMHS)",
+    "B-Lee Kong Chian Faculty of Engineering and Science (LKC FES)",
+    "C-Institute of Management and Leadership Development (IMLD)",
+    "D-Institute of Postgraduate Studies and Research (IPSR)",
+    "E-Centre for Corporate and Community Development (CCCD)",
+    "F-Faculty of Accountancy and Management (FAM)",
+    "G-Faculty of Chinese Studies (FCS)",
+    "H-Faculty of Education (FOE)",
+    "I-Centre for Foundation Studies (CFS)",
+    "J-Faculty of Creative Industries (FCI)",
+    "K-Institute of International Education (IIE)"
 };
-const int FAC_COUNT = 10;
+const int FAC_COUNT = 11;
 
 // ============================================================
 // FORWARD DECLARATIONS
@@ -262,7 +263,7 @@ int safeInputInt(int min, int max) {
 string getValidPassword() {
     string pw;
     while (true) {
-        cout << "  Password (min 12 chars, upper+lower+digit+special): ";
+        cout << "  Password (min 12 chars, upper + lower + digit + special): ";
         getline(cin >> ws, pw);
 
         if ((int)pw.length() < 12) {
@@ -284,13 +285,15 @@ string getValidPassword() {
 }
 
 // Forces the user to enter a valid faculty code (A-J).
-string getValidFaculty() {
+string getValidFaculty(){
     string fac;
-    while (true) {
+    while(true){
         cout << "  Faculty — A:M. Kandiah  B:Lee Kong Chian  C:FEG  D:FICT  E:FaS  F:FAM  G:FCS  H:CFFS  I:FCI  J:FOE — Enter code: ";
         getline(cin >> ws, fac);
-        for (char& c : fac) c = toupper(c);
-        for (int i = 0; i < FAC_COUNT; i++) {
+        for(char& c : fac){
+            c = toupper(c);
+        }
+        for(int i = 0; i < FAC_COUNT; i++){
             if (FAC_CODES[i] == fac) return fac;
         }
         cout << "  Invalid faculty. Please enter A, B, C, D, E, F, G, H, I or J.\n";
@@ -301,10 +304,10 @@ string getValidFaculty() {
 // FILE I/O
 // ============================================================
 
-void loadStudentsFromFile() {
+void loadStudentsFromFile(){
     ifstream file("students.txt");
     string line;
-    while (getline(file, line)) {
+    while (getline(file, line)){
         if (line.empty() || studentCount >= 200) continue;
         stringstream ss(line);
         student& s = students[studentCount];
@@ -567,7 +570,7 @@ void registerStudent() {
 
     stud.id = "S" + to_string(studentCount + 1);
     cout << "  Generated ID : " << stud.id << "\n\n";
-    cout << "  Name    : ";
+    cout << "  (Only 20 characters allowed) | Name  : ";
     getline(cin >> ws, stud.name);
     cout << "  Email   : ";
     getline(cin >> ws, stud.stud_email);
@@ -634,9 +637,9 @@ void viewVehicles(string studentID) {
         vehicle& v = vehicles[idx[i]];
         string pass = hasActivePaidPassForVehicle(v.vehicleID) ? "Yes" : "No";
         cout << "  " << left << setw(10) << v.vehicleID
-                              << setw(16) << v.plate
-                              << setw(14) << v.type
-                              << pass << "\n";
+                             << setw(16) << v.plate
+                             << setw(14) << v.type
+                             << pass << "\n";
     }
 }
 
@@ -667,16 +670,23 @@ void registerApplication(int index_Student) {
         cout << "  No vehicles registered. Add one via Manage Vehicles first.\n";
         return;
     }
-    if (appsCount >= 400) { cout << "  System full.\n"; return; }
+    if (appsCount >= 400) { 
+        cout << "  System full.\n"; 
+        return; 
+    }
 
     cout << "  Select vehicle to apply for:\n";
     printLine();
     for (int i = 0; i < vCount; i++) {
         vehicle& v = vehicles[idx[i]];
         string tag;
-        if (hasPendingOrApprovedForVehicle(v.vehicleID))    tag = " [Pending/Approved]";
-        else if (hasActivePaidPassForVehicle(v.vehicleID))  tag = " [Active — use Renew]";
-        else                                                 tag = " [No active pass]";
+        if (hasPendingOrApprovedForVehicle(v.vehicleID)){  
+             tag = " [Pending/Approved]";
+        }else if (hasActivePaidPassForVehicle(v.vehicleID)){ 
+             tag = " [Active — use Renew]";
+        }else{                                                 
+            tag = " [No active pass]";
+        }
         cout << "  " << (i + 1) << ". " << v.plate << " (" << v.type << ")" << tag << "\n";
     }
     printLine();
@@ -1122,9 +1132,12 @@ void statisticsUsage(int index_Admin) {
         else if (apps[i].status == "paid")     paid++;
         else if (apps[i].status == "expired")  expired++;
 
-        if (apps[i].months >= 1 && apps[i].months <= 3) durationCount[apps[i].months]++;
+        if (apps[i].months >= 1 && apps[i].months <= 3){
+            durationCount[apps[i].months]++;
+        }
 
         int fi = facultyIndex(apps[i].faculty);
+
         if (fi != -1) {
             facApps[fi]++;
             if (apps[i].status == "approved")  facApproved[fi]++;
@@ -1144,8 +1157,7 @@ void statisticsUsage(int index_Admin) {
     }
 
     int activeNow = paid + approved;
-    double utilRate = studentCount > 0
-        ? (double)activeNow / studentCount * 100.0 : 0.0;
+    double utilRate = studentCount > 0 ? (double)activeNow / studentCount * 100.0 : 0.0;
 
     // ── Overall summary ──────────────────────────────────────────
     printLine();
@@ -1213,7 +1225,8 @@ void statisticsUsage(int index_Admin) {
 
     // ── Monthly trend ────────────────────────────────────────────
     printLine();
-    cout << "  MONTHLY APPLICATION TREND (last 12 months)\n"; printLine();
+    cout << "  MONTHLY APPLICATION TREND (last 12 months)\n"; 
+    printLine();
     int maxBar = 1;
     for (int m = 0; m < 12; m++) {
         if (monthApps[m] > maxBar) maxBar = monthApps[m];
@@ -1222,8 +1235,7 @@ void statisticsUsage(int index_Admin) {
         int bar = (monthApps[m] * 30) / maxBar;
         cout << "  " << mLabels[m] << " ";
         for (int j = 0; j < bar; j++) cout << "#";
-        cout << "  (" << monthApps[m] << " apps, RM "
-             << fixed << setprecision(0) << (double)monthRevenue[m] << ")\n";
+        cout << "  (" << monthApps[m] << " apps, RM " << fixed << setprecision(0) << (double)monthRevenue[m] << ")\n";
     }
     printLine();
     cout << "  Run 'Generate Summary Report' for the full printable report.\n";
@@ -1371,9 +1383,9 @@ void generateSummaryReport(int index_Admin) {
     for (int i = 0; i < appsCount; i++) {
         int fi = facultyIndex(apps[i].faculty);
         if (fi == -1) continue;
-        facTotal[fi]++;
+            facTotal[fi]++;
         if (isRenewalApp(i)) facRenew[fi]++;
-        else                 facNew[fi]++;
+        else facNew[fi]++;
 
         if (apps[i].status == "paid") {
             facPaidMonths[fi] += apps[i].months;
@@ -1402,12 +1414,16 @@ void generateSummaryReport(int index_Admin) {
 
     int peakFac = 0;
     for (int f = 1; f < FAC_COUNT; f++) {
-        if (facTotal[f] > facTotal[peakFac]) peakFac = f;
+        if (facTotal[f] > facTotal[peakFac])  {
+            peakFac = f;
+        }
     }
 
     int peakMonth = 0;
     for (int m = 1; m < 12; m++) {
-        if (monthTotal[m] > monthTotal[peakMonth]) peakMonth = m;
+        if (monthTotal[m] > monthTotal[peakMonth]) {
+            peakMonth = m;
+        }
     }
 
     // ── SECTION 1 ────────────────────────────────────────────────
