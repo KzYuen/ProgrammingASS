@@ -1,0 +1,3 @@
+S1|Celine Lim|2301001@student.edu.my|B|012-345 1001|Happylygay2020#
+S2|Tan Mei Ling|2301002@student.edu.my|G|017-890 1002|Happylygay2020#
+S3|Siti Nurhaliza binti Kamal|2301003@student.edu.my|A|019-456 1003|Happylygay2020#
