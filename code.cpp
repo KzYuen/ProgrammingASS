@@ -32,6 +32,7 @@ struct student {
     string faculty;   // validated: A / B / C / D
     string phone;
     string password;
+    bool deleted;   
 };
 
 struct vehicle {
@@ -119,6 +120,7 @@ int  findVehicleIndexByID(string vehicleID);
 void registerApplication(int index_Student);
 void renewApplication(int index_Student);
 void viewApplicationHistory(int index_Student);   // student tracking & analytics
+void deleteStudent(int index_Admin);
 
 // Profile
 void viewStudentProfile(int index_Student);
@@ -1110,8 +1112,78 @@ void approveRejectApplication(int app_index) {
         cout << "  Application rejected.\n";
     }
     saveApplicationsToFile();
-}
+} 
 
+void deleteStudent(int index_Admin) {
+    (void)index_Admin;  // reserved for future role-based access control
+    printHeader("Admin: Delete Student Account");
+ 
+    if (studentCount == 0) { cout << "  No students registered.\n"; return; }
+ 
+    // Show all students, marking already-deleted ones
+    cout << "  " << left << setw(6) << "No."
+                         << setw(8) << "ID"
+                         << setw(22) << "Name"
+                         << setw(8)  << "Faculty"
+                         << "Status\n";
+    printLine();
+    for (int i = 0; i < studentCount; i++) {
+        string status = students[i].deleted ? "(DELETED)" : "Active";
+        cout << "  " << left << setw(6)  << (i + 1)
+                              << setw(8)  << students[i].id
+                              << setw(22) << students[i].name
+                              << setw(8)  << ("[" + students[i].faculty + "]")
+                              << status   << "\n";
+    }
+    printLine();
+    cout << "  Select student to delete (0 to cancel): ";
+    int pick = safeInputInt(0, studentCount);
+    if (pick == 0) { cout << "  Cancelled.\n"; return; }
+ 
+    student& s = students[pick - 1];
+ 
+    if (s.deleted) {
+        cout << "  This account is already deleted.\n"; return;
+    }
+ 
+    // Show details and pending items so admin is fully informed
+    cout << "\n  Student to delete:\n";
+    cout << "  ID      : " << s.id         << "\n";
+    cout << "  Name    : " << s.name       << "\n";
+    cout << "  Email   : " << s.stud_email << "\n";
+    cout << "  Faculty : " << s.faculty    << "\n";
+ 
+    // Count how many active/pending passes exist for this student's vehicles
+    int activePasses = 0, pendingApps = 0;
+    for (int i = 0; i < appsCount; i++) {
+        if (apps[i].studentID != s.id) continue;
+        if (apps[i].status == "paid" || apps[i].status == "approved") activePasses++;
+        if (apps[i].status == "pending") pendingApps++;
+    }
+    if (activePasses > 0)
+        cout << "  WARNING : This student has " << activePasses << " active/approved pass(es).\n";
+    if (pendingApps > 0)
+        cout << "  WARNING : This student has " << pendingApps  << " pending application(s).\n";
+ 
+    cout << "\n  NOTE: All vehicle, application and payment records are PRESERVED\n";
+    cout << "        for reporting purposes. Only login access is removed.\n";
+    printLine();
+ 
+    char confirm;
+    cout << "  Confirm deletion? (y/n): ";
+    cin >> confirm; cin.ignore(numeric_limits<streamsize>::max(), '\n');
+ 
+    if (confirm != 'y' && confirm != 'Y') {
+        cout << "  Deletion cancelled.\n"; return;
+    }
+ 
+    // Soft-delete: just flip the flag and save
+    s.deleted = true;
+    saveStudentsToFile();
+ 
+    cout << "\n  Student account '" << s.name << "' (" << s.id << ") has been deactivated.\n";
+    cout << "  All records are retained in the system for reporting.\n";
+}
 // ============================================================
 // ADMIN — STATISTICS & ANALYTICS  (b)
 // ============================================================
