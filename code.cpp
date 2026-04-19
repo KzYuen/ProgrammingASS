@@ -403,7 +403,7 @@ void loadVehiclesFromFile() {
 
 /*
 applications.txt  — 8 fields:
-  studentID | vehicleID | faculty | months | status | applyDate | applyMonth | expiryDate
+  studentID | vehicleID | faculty | months | status | paymentStatus | applyDate | applyMonth | expiryDate
 Backward-compatible: missing 8th field is auto-derived from applyMonth + months.
 */
 void loadApplicationsFromFile() {
@@ -414,12 +414,13 @@ void loadApplicationsFromFile() {
         stringstream ss(line);
         application temp;
         string monthsStr;
-        if (getline(ss, temp.studentID,  '|') &&
-            getline(ss, temp.vehicleID,  '|') &&
-            getline(ss, temp.faculty,    '|') &&
-            getline(ss, monthsStr,       '|') &&
-            getline(ss, temp.status,     '|') &&
-            getline(ss, temp.applyDate,  '|') &&
+        if (getline(ss, temp.studentID,     '|') &&
+            getline(ss, temp.vehicleID,     '|') &&
+            getline(ss, temp.faculty,       '|') &&
+            getline(ss, monthsStr,          '|') &&
+            getline(ss, temp.status,        '|') &&
+            getline(ss, temp.paymentStatus, '|') &&
+            getline(ss, temp.applyDate,     '|') &&
             getline(ss, temp.applyMonth)) {
             try {
                 temp.months = stoi(monthsStr);
@@ -631,7 +632,9 @@ void expiryAlert(int index_Student) {
     // Find the latest expiryDate among all currently paid passes
     string latestExpiry = "";
     for (int i = 0; i < appsCount; i++) {
-        if (apps[i].studentID == id && apps[i].status == "paid" &&
+        if (apps[i].studentID == id         &&
+            apps[i].paymentStatus == "paid" &&
+            apps[i].status != "expired"     &&
             !apps[i].expiryDate.empty()) {
             if (latestExpiry.empty() || apps[i].expiryDate > latestExpiry)
                 latestExpiry = apps[i].expiryDate;
@@ -727,7 +730,9 @@ void viewVehicles(string studentID) {
         string exp  = "";
         if (active) {
             for (int j = appsCount - 1; j >= 0; j--) {
-                if (apps[j].vehicleID == v.vehicleID && apps[j].status == "paid") {
+                if (apps[j].vehicleID == v.vehicleID &&
+                    apps[j].paymentStatus == "paid"  &&
+                    apps[j].status != "expired") {
                     exp = apps[j].expiryDate; break;
                 }
             }
@@ -960,7 +965,7 @@ void viewStudentProfile(int index_Student) {
             for (int j = appsCount - 1; j >= 0; j--) {
                 if (apps[j].vehicleID == v.vehicleID &&
                     apps[j].status != "rejected" && apps[j].status != "expired") {
-                    status = apps[j].status;
+                    status = (apps[j].paymentStatus == "paid") ? "paid" : apps[j].status;
                     expiry = apps[j].expiryDate;
                     break;
                 }
@@ -1212,8 +1217,11 @@ void viewProfileAdmin(int index_Admin) {
         if (isRenewalApp(i)) {
             for (int k = i - 1; k >= 0; k--) {
                 if (apps[k].vehicleID == apps[i].vehicleID &&
-                    apps[k].status == "paid" && !apps[k].expiryDate.empty()) {
-                    currExpiry = apps[k].expiryDate; break;
+                    apps[k].paymentStatus == "paid" &&
+                    apps[k].status != "expired"     &&
+                    !apps[k].expiryDate.empty()) {
+                    currExpiry = apps[k].expiryDate;
+                    break;
                 }
             }
         }
@@ -1257,7 +1265,9 @@ void approveRejectApplication(int app_index) {
     if (renewal) {
         for (int k = app_index - 1; k >= 0; k--) {
             if (apps[k].vehicleID == apps[app_index].vehicleID &&
-                apps[k].status == "paid" && !apps[k].expiryDate.empty()) {
+                apps[k].paymentStatus == "paid" &&
+                apps[k].status != "expired"     &&
+                !apps[k].expiryDate.empty()) {
                 cout << "  Current pass expires : " << apps[k].expiryDate << "\n";
                 break;
             }
@@ -1313,11 +1323,11 @@ void statisticsUsage(int index_Admin) {
     int monthRevenue[12] = {0};
 
     for (int i = 0; i < appsCount; i++) {
-        if      (apps[i].status        == "approved") approved++;
-        else if (apps[i].status        == "rejected") rejected++;
+        if      (apps[i].status        == "rejected") rejected++;
         else if (apps[i].status        == "pending")  pending++;
-        else if (apps[i].paymentStatus == "paid")     paid++;
         else if (apps[i].status        == "expired")  expired++;
+        else if (apps[i].paymentStatus == "paid")     paid++;
+        else if (apps[i].status        == "approved") approved++;
 
         if (apps[i].months >= 1 && apps[i].months <= 3) durationCount[apps[i].months]++;
 
@@ -1727,8 +1737,11 @@ void adminViewStudentProfile(int index_Admin) {
             string exp  = "";
             if (active) {
                 for (int j = appsCount - 1; j >= 0; j--) {
-                    if (apps[j].vehicleID == v.vehicleID && apps[j].status == "paid") {
-                        exp = apps[j].expiryDate; break;
+                    if (apps[j].vehicleID == v.vehicleID &&
+                        apps[j].paymentStatus == "paid"  &&
+                        apps[j].status != "expired") {
+                        exp = apps[j].expiryDate;
+                        break;
                     }
                 }
             }
@@ -1749,11 +1762,12 @@ void adminViewStudentProfile(int index_Admin) {
         any = true;
         int vi = findVehicleIndexByID(apps[i].vehicleID);
         string plate = (vi != -1) ? vehicles[vi].plate : apps[i].vehicleID;
+        string displayStatus = (apps[i].paymentStatus == "paid") ? "paid" : apps[i].status;
         cout << "  " << left << setw(6) << i << setw(12) << plate
-                              << setw(12) << apps[i].applyDate << setw(7) << apps[i].months
-                              << setw(12) << apps[i].status
-                              << setw(12) << (apps[i].expiryDate.empty() ? "TBD" : apps[i].expiryDate)
-                              << (isRenewalApp(i) ? "Renewal" : "New") << "\n";
+                     << setw(12) << apps[i].applyDate << setw(7) << apps[i].months
+                     << setw(12) << displayStatus
+                     << setw(12) << (apps[i].expiryDate.empty() ? "TBD" : apps[i].expiryDate)
+                     << (isRenewalApp(i) ? "Renewal" : "New") << "\n";
     }
     if (!any) cout << "  No applications found.\n";
     printLine();
@@ -1800,7 +1814,8 @@ void deleteStudent(int index_Admin) {
     int activePasses = 0, pendingApps = 0;
     for (int i = 0; i < appsCount; i++) {
         if (apps[i].studentID != s.id) continue;
-        if (apps[i].status == "paid" || apps[i].status == "approved") activePasses++;
+        if ((apps[i].paymentStatus == "paid" && apps[i].status != "expired")
+        || apps[i].status == "approved") activePasses++;
         if (apps[i].status == "pending") pendingApps++;
     }
     if (activePasses > 0)
