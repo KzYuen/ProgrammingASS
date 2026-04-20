@@ -1,6 +1,6 @@
 S1|Celine Lim|2301001@student.edu.my|B|012-345 1001|Happylygay2020#
 S2|Tan Mei Ling|2301002@student.edu.my|G|017-890 1002|Happylygay2020#
-S3|Siti Nurhaliza binti Kamal|2301003@student.edu.my|A|019-456 1003|Happylygay2020#
+S3|Siti Nurhaliza|2301003@student.edu.my|A|019-456 1003|Happylygay2020#
 S4|Kevin a/l Muthu|2301004@student.edu.my|C|011-1234 1004|Happylygay2020#
 S5|Lim Wei Jian|2301005@student.edu.my|J|016-789 1005|Happylygay2020#
 S6|Nurul Huda|2301006@student.edu.my|C|013-234 1006|Happylygay2020#
@@ -23,9 +23,78 @@ S22|Goh Kian Meng|2301022@student.edu.my|E|012-456 1022|Allmightyright2026#
 S23|Asyraf bin Din|2301023@student.edu.my|D|017-890 1023|Allmightyright2026#
 S24|Divya d/o Ganesh|2301024@student.edu.my|C|019-123 1024|Allmightright2026#
 S25|Lau Zhi Zheng|2301025@student.edu.my|H|011-6789 1025|Allmightyright2026#
-S26|zzati binti Othman|2301026@student.edu.my|D|016-345 1026|Allmightyright2026#
+S26|Izzati binti Othman|2301026@student.edu.my|D|016-345 1026|Allmightyright2026#
 S27|Ho Pei Yee|2301027@student.edu.my|J|013-890 1027|Allmightyright2026#
 S28|Firdaus bin Hassan|2301028@student.edu.my|I|018-456 1028|Allmightyright2026#
 S29|Teoh Jia Wei|2301029@student.edu.my|G|012-123 1029|Allmightyright2026#
 S30|Nur Amanina|2301030@student.edu.my|D|017-678 1030|Allmightyright2026@
 S31|Sanjay a/l Krishnan|2301031@student.edu.my|B|019-890 1031|Allmightyright2026#
+S32|Nabilah binti Ahmad|2301032@student.edu.my|016-789 1033|Allmightyright2020#
+S33|Chan Jun Kit|2301033@student.edu.my|013-456 1034|Allmightyright2020#
+S34|Jason Lim|2301034@student.edu.my|018-123 1035|Allmightyright2020#
+S32|Ooi Wei Han|2301035@student.edu.my|011-2345 1032|Allmightyright2020#
+S36|Intan binti Shafie|2301036@student.edu.my|012-890 1036|Allmightyright2020#
+S37|Thivya d/o Kumar|2301037@student.edu.my|017-234 1037|Allmightyright2020#
+S38|Liew Siew Ching|2301038@student.edu.my|019-567 1038|Allmightyright2020#
+S39|Zulhilmi bin Fauzi|2301039@student.edu.my|011-8901 1039|Allmightyright2020#
+S40|Michelle Wong|2301040@student.edu.my|016-123 1040|Allmightyright2020#
+S41|Nadia Zulkifli|2301041@student.edu.my|013-678 1041|Allmightyright2020#
+S42|Tan Chee Keong|2301042@student.edu.my|018-890 1042|Allmightyright2020#
+S43|Muhammad Iqbal|2301043@student.edu.my|012-345 1043|Allmightyright2020#
+S44|Anusha d/o Suresh|2301044@student.edu.my|017-890 1044|Allmightyright2020#
+S45|Lim Zhi Hao|2301045@student.edu.my|019-123 1045|Allmightyright2020#
+S46|Anis binti Bakar|2301046@student.edu.my|011-4567 1046|Allmightyright2020#
+S47|Chong Hui Yin|2301047@student.edu.my|016-789 1047|Allmightyright2020#
+S48|Ahmad Zikri bin Osman|2301048@student.edu.my|012-345 1001|Allmightyright2020#
+S49|Tan Mei Ling|2301049@student.edu.my|017-890 1002|Allmightyright2020#
+S50|Amila Nurhaliza|2301050@student.edu.my|019-456 1003|Allmightyright2020#
+S51|Kevin Raj|2301051@student.edu.my|011-1234 1004|Allmightyright2020#
+S52|Lim Wei Jian|2301052@student.edu.my|016-789 1005|Allmightyright2020#
+S53|Nurul Huda|2301053@student.edu.my|013-234 1006|Allmightyright2020#
+S54|Chong Kah Yan|2301054@student.edu.my|018-567 1007|Allmightyright2020#
+S55|Muhammad Faiz|2301055@student.edu.my|012-890 1008|Allmightyright2020#
+S56|Priya d/o Subramaniam|2301056@student.edu.my|017-345 1009|Allmightyright2020#
+S57|Wong Zi Hao|2301057@student.edu.my|019-678 1010|Allmightyright2020#
+S58|Amirul Amin|2301058@student.edu.my|011-5678 1011|Allmightyright2020#
+S59|Chloe Chen Xin Yi|2301059@student.edu.my|016-234 1012|Allmightyright2020#
+S60|Farah Nabila|2301060@student.edu.my|013-890 1013|Allmightyright2020#
+S61|Lee Jun Hui|2301061@student.edu.my|018-123 1014|Allmightyright2020#
+S62|Darren Yeoh|2301062@student.edu.my|012-678 1015|Allmightyright2020#
+S63|Aishah binti Ismail|2301063@student.edu.my|017-456 1016|Allmightyright2020#
+S64|Karthik a/l Raman|2301064@student.edu.my|019-234 1017|Allmightyright2020#
+S65|Ng Siew Ann|2301065@student.edu.my|011-8901 1018|Allmightyright2020#
+S66|Hafiz bin Sulaiman|2301066@student.edu.my|016-567 1019|Allmightyright2020#
+S67|Rachel Tan|2301067@student.edu.my|013-123 1020|Allmightyright2020#
+S68|Syahirah binti Musa|2301068@student.edu.my|018-789 1021|Allmightyright2020#
+S69|Goh Kian Meng|2301069@student.edu.my|012-456 1022|Allmightyright2020#
+S70|Muhammad Asyraf bin Din|2301070@student.edu.my|017-890 1023|Allmightyright2020#
+S71|Divya d/o Ganesh|2301071@student.edu.my|019-123 1024|Allmightyright2020#
+S72|Lau Zhi Zheng|2301072@student.edu.my|011-6789 1025|Allmightyright2020#
+S73|Izzati binti Othman|2301073@student.edu.my|016-345 1026|Allmightyright2020#
+S74|Ho Pei Yee|2301074@student.edu.my|013-890 1027|Allmightyright2020#
+S75|Firdaus bin Hassan|2301075@student.edu.my|018-456 1028|Allmightyright2020#
+S76|Teoh Jia Wei|2301076@student.edu.my|012-123 1029|Allmightyright2020#
+S77|Nur Amanina binti Razak|2301077@student.edu.my|017-678 1030|Allmightyright2020#
+S78|Sanjay a/l Krishnan|2301078@student.edu.my|019-890 1031|Allmightyright2020#
+S79|Ooi Wei Han|2301079@student.edu.my|011-2345 1032|Allmightyright2020#
+S80|Nabilah binti Ahmad|2301080@student.edu.my|016-789 1033|Allmightyright2020#
+S81|Chan Jun Kit|2301081@student.edu.my|013-456 1034|Allmightyright2020#
+S82|Jason Lim|2301082@student.edu.my|018-123 1035|Allmightyright2020#
+S83|Intan binti Shafie|2301083@student.edu.my|012-890 1036|Allmightyright2020#
+S84|Thivya d/o Kumar|2301084@student.edu.my|017-234 1037|Allmightyright2020#
+S85|Liew Siew Ching|2301085@student.edu.my|019-567 1038|Allmightyright2020#
+S86|Zulhilmi bin Fauzi|2301086@student.edu.my|011-8901 1039|Allmightyright2020#
+S87|Michelle Wong|2301087@student.edu.my|016-123 1040|Allmightyright2020#
+S88|Nadia binti Zulkifli|2301088@student.edu.my|013-678 1041|Allmightyright2020#
+S89|Tan Chee Keong|2301089@student.edu.my|018-890 1042|Allmightyright2020#
+S90|Muhammad Iqbal bin Ali|2301090@student.edu.my|012-345 1043|Allmightyright2020#
+S91|Anusha d/o Suresh|2301091@student.edu.my|017-890 1044|Allmightyright2020#
+S92|Lim Zhi Hao|2301092@student.edu.my|019-123 1045|Allmightyright2020#
+S93|Anis binti Bakar|2301093@student.edu.my|011-4567 1046|Allmightyright2020#
+S94|Chong Hui Yin|2301094@student.edu.my|016-789 1047|Allmightyright2020#
+S95|Aiman bin Yahya|2301095@student.edu.my|013-234 1048|Allmightyright2020#
+S96|Ng Kar Seng|2301096@student.edu.my|018-567 1049|Allmightyright2020#
+S97|Fatin binti Omar|2301097@student.edu.my|012-890 1050|Allmightyright2020#
+S98|Roshan a/l Rajan|2301098@student.edu.my|017-123 1051|Allmightyright2020#
+S99|Wong Wei Ling|2301099@student.edu.my|019-678 1052|Allmightyright2020#
+S100|Syazwan bin Mahfuz|2301100@student.edu.my|011-8901 1053|Allmightyright2020#
