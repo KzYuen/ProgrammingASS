@@ -1,7 +1,2 @@
-V1|S2|WXC1234|car
-V2|S1|dj1324|van
-V3|S1|sco2345|car
-V4|S5|ef1324|motorcycle
-V5|S5|sdw135|car
-V6|S25|eqfe135|car
-V7|S25|werc134|van
+V1|S1|wcw1332|car
+V2|S1|wfq1241|motorcycle
