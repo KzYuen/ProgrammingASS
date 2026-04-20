@@ -38,9 +38,9 @@ S37|Thivya d/o Kumar|2301037@student.edu.my|017-234 1037|Allmightyright2020#
 S38|Liew Siew Ching|2301038@student.edu.my|019-567 1038|Allmightyright2020#
 S39|Zulhilmi bin Fauzi|2301039@student.edu.my|011-8901 1039|Allmightyright2020#
 S40|Michelle Wong|2301040@student.edu.my|016-123 1040|Allmightyright2020#
-S41|Nadia Zulkifli|2301041@student.edu.my|013-678 1041|Allmightyright2020#
+S41|Nadia binti Zulkifli|2301041@student.edu.my|013-678 1041|Allmightyright2020#
 S42|Tan Chee Keong|2301042@student.edu.my|018-890 1042|Allmightyright2020#
-S43|Muhammad Iqbal|2301043@student.edu.my|012-345 1043|Allmightyright2020#
+S43|Muhammad Iqbal bin Ali|2301043@student.edu.my|012-345 1043|Allmightyright2020#
 S44|Anusha d/o Suresh|2301044@student.edu.my|017-890 1044|Allmightyright2020#
 S45|Lim Zhi Hao|2301045@student.edu.my|019-123 1045|Allmightyright2020#
 S46|Anis binti Bakar|2301046@student.edu.my|011-4567 1046|Allmightyright2020#
