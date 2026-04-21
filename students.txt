@@ -66,7 +66,7 @@ S65|Lim Jia Yi|2301065@student.edu.my|LKC FES|017-678 1065|Allmightyright2020#|0
 S66|Husna Kamarudin|2301066@student.edu.my|LKC FES|019-123 1066|Allmightyright2020#|0
 S67|Chong Wei Ting|2301067@student.edu.my|FCS|011-4567 1067|Allmightyright2020#|0
 S68|Afiq bin Ramli|2301068@student.edu.my|FOE|016-890 1068|Allmightyright2020#|0
-S69|Ng Jun Jie|2301069@student.edu.my|MKF FMHS|013-345 1069||Allmightyright2020#|0
+S69|Ng Jun Jie|2301069@student.edu.my|MKF FMHS|013-345 1069||0
 S70|Liyana Osman |2301070@student.edu.my|CFS|018-678 1070|Allmightyright2020#|0
 S71|Kumar a/l Chandran|2301071@student.edu.my|FCS|012-890 1071|Allmightyright2020#|0
 S72|Wong Siew Yin|2301072@student.edu.my|MKF FMHS|017-234 1072|Allmightyright2020#|0
@@ -92,7 +92,7 @@ S91|Raj a/l Gopal|2301091@student.edu.my|FAM|018-890 1091|Allmightyright2020#|0
 S92|Wong Jia Ying|2301092@student.edu.my|MKF FMHS|012-345 1092|Allmightyright2020#|0
 S93|Hazim Mahmud|2301093@student.edu.my|IPSR|017-789 1093|Allmightyright2020#|0
 S94|Lee Jun Jie|2301094@student.edu.my|IPSR|019-123 1094|Allmightyright2020#|0
-S95|AMBATACUMMMMM|2301095@student.edu.my|CCCD|011-5678 1095|Allmightyright2020#|0
+S95|Keqing |2301095@student.edu.my|CCCD|012-123 3213|Allmightyright2020#|0
 S96|Munirah Yusoff|2301096@student.edu.my|IPSR|016-890 1096|Allmightyright2020#|0
 S97|Kugan a/l Sivam|Kugan a/l Sivam|CFS|013-234 1097|Allmightyright2020#|0
 S98|Tan Wei Ling|2301098@student.edu.my|CFS|018-678 1098|Allmightyright2020#|0
