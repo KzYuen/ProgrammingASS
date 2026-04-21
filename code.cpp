@@ -114,8 +114,8 @@ void registerAdmin();
 void registerVehicle(string studentID);
 void viewVehicles(string studentID);
 void manageVehicles(int index_Student);
-int  getVehiclesForStudent(string studentID, int results[], int maxCount);
-int  findVehicleIndexByID(string vehicleID);
+int getVehiclesForStudent(string studentID, int results[], int maxCount);
+int findVehicleIndexByID(string vehicleID);
 
 void registerApplication(int index_Student);
 void renewApplication(int index_Student);
@@ -133,17 +133,17 @@ void statisticsUsage(int index_Admin);
 void generateSummaryReport(int index_Admin);
 void deleteStudent(int index_Admin);
 
-int    findStudentIndexByID(string id);
-int    findAdminIndexByID(string id);
-bool   hasPendingOrApprovedForVehicle(string vehicleID);
-bool   hasActivePaidPassForVehicle(string vehicleID);
-int    facultyIndex(string fac);
-bool   isRenewalApp(int appIdx);
+int findStudentIndexByID(string id);
+int findAdminIndexByID(string id);
+bool hasPendingOrApprovedForVehicle(string vehicleID);
+bool hasActivePaidPassForVehicle(string vehicleID);
+int facultyIndex(string fac);
+bool isRenewalApp(int appIdx);
 string getValidPassword();
 string getValidFaculty();
 string getAbbrevName(int fi);
-int    safeInputInt(int min, int max);
-void   cleanupExpiredPasses(string studentID);
+int safeInputInt(int min, int max);
+void cleanupExpiredPasses(string studentID);
 
 void expiryAlert(int index_Student);
 
@@ -154,11 +154,11 @@ void mainMenu();
 string getCurrentMonth();
 string getCurrentDate();
 
-int    daysInMonth(int year, int month);
+int daysInMonth(int year, int month);
 string lastDayOfMonth(int year, int month);
 string calcExpiryNewPass(string applyMonth, int months);
 string addMonthsToExpiry(string expiryDate, int months);
-int    daysBetween(string fromDate, string toDate);
+int daysBetween(string fromDate, string toDate);
 
 void printLine(char c = '-', int n = 60);
 void printHeader(string title);
@@ -476,7 +476,7 @@ void loadApplicationsFromFile() {
             getline(ss, temp.status,        '|') &&
             getline(ss, temp.paymentStatus, '|') &&
             getline(ss, temp.applyDate,     '|') &&
-            getline(ss, temp.applyMonth)) {
+            getline(ss, temp.applyMonth,    '|')) { 
             try {
                 temp.months = stoi(monthsStr);
                 if (temp.months < 1 || temp.months > 3) continue;
@@ -941,9 +941,7 @@ void renewApplication(int index_Student) {
     cout << "  Select vehicle to renew:\n"; printLine();
     for (int i = 0; i < eligCount; i++) {
         vehicle& v = vehicles[eligIdx[i]];
-        string tag = hasPendingOrApprovedForVehicle(v.vehicleID) ? " [Renewal pending]"
-                   : (hasActivePaidPassForVehicle(v.vehicleID)   ? " [Active pass]"
-                                                                 : " [Expired — renews from today]");
+        string tag = hasPendingOrApprovedForVehicle(v.vehicleID) ? " [Renewal pending]" : (hasActivePaidPassForVehicle(v.vehicleID)   ? " [Active pass]" : " [Expired — renews from today]");
         cout << "  " << (i + 1) << ". " << v.plate << " (" << v.type << ")" << tag << "\n";
     }
     printLine();
@@ -1018,114 +1016,121 @@ void renewApplication(int index_Student) {
     cout << "  Your current pass stays active until you pay for this renewal.\n";
 }
 
-void extendApplication(int index_Student) { 
+void extendApplication(int index_Student) {
     printHeader("Extend Current Pass");
     string studentID = students[index_Student].id;
     string today     = getCurrentDate();
-    
-    int idx[20], eligIdx[20]; int eligCount = 0;
-    int vehicleCount = getVehiclesForStudent(studentID, idx, 0);
-    if (vehicleCount == 0) { 
-        cout << "  No vehicles registered.\n"; 
-        return; 
+ 
+    int idx[20], eligIdx[20];
+    int eligCount = 0;
+ 
+    // FIX 1 & 2: use vCount (not vehicleCount), pass maxCount=20 (not 0)
+    int vCount = getVehiclesForStudent(studentID, idx, 20);
+    if (vCount == 0) {
+        cout << "  No vehicles registered.\n"; return;
     }
-    for (int i = 0; i < vehicleCount; i++) {
+ 
+    for (int i = 0; i < vCount; i++) {
         if (hasActivePaidPassForVehicle(vehicles[idx[i]].vehicleID)) {
             eligIdx[eligCount++] = idx[i];
         }
-        if (eligCount == 0) {
-            cout << "  No active passes to extend. Use Renew Pass for expired passes.\n";
-            return;
-        }
     }
-    cout << "  Select vehicle to extend:\n"; 
-    printLine();
+    // FIX 3: eligCount check is OUTSIDE the loop
+    if (eligCount == 0) {
+        cout << "  No active passes to extend.\n";
+        cout << "  Use Renew Pass for expired passes.\n"; return;
+    }
+ 
+    // FIX 4: print each vehicle ONCE, with expiry info
+    cout << "  Select vehicle to extend:\n"; printLine();
     for (int i = 0; i < eligCount; i++) {
         vehicle& v = vehicles[eligIdx[i]];
-        cout << "  " << (i + 1) << ". " << v.plate << " (" << v.type << ")\n";
-
         string expiry = "";
-        for(int j = appsCount - 1; j >= 0; j--) {
+        for (int j = appsCount - 1; j >= 0; j--) {
             if (apps[j].vehicleID == v.vehicleID &&
                 apps[j].paymentStatus == "paid"  &&
                 apps[j].status != "expired") {
-                expiry = apps[j].expiryDate; 
-                break;
+                expiry = apps[j].expiryDate; break;
             }
-        } 
+        }
         int daysLeft = expiry.empty() ? -1 : daysBetween(today, expiry);
-        cout << " " << (i+1) << ". " << v.plate << " (" << v.type << ")" << " Expires: " << expiry << " (" <<  daysLeft << " days left)\n";
+        cout << "  " << (i + 1) << ". " << v.plate << " (" << v.type << ")"
+             << "  Expires: " << expiry
+             << " (" << daysLeft << " days left)\n";
     }
     printLine();
-
-    cout << " Pick (1-" << eligCount << ", 0 to cancel): ";
+ 
+    cout << "  Pick (1-" << eligCount << ", 0 to cancel): ";
     int pick = safeInputInt(0, eligCount);
     if (pick == 0) return;
-
+ 
     vehicle& chosen = vehicles[eligIdx[pick - 1]];
-
+ 
+    // Find the active paid application for the chosen vehicle
     int activeAppIdx = -1;
-    for(int i = appsCount - 1; i >= 0; i--) {
+    for (int i = appsCount - 1; i >= 0; i--) {
         if (apps[i].vehicleID == chosen.vehicleID &&
-            apps[i].paymentStatus == "paid"  &&
+            apps[i].paymentStatus == "paid"       &&
             apps[i].status != "expired") {
             activeAppIdx = i; break;
         }
     }
     if (activeAppIdx == -1) {
-        cout << "  No active pass found for this vehicle.\n"; 
-        return;
+        cout << "  No active pass found for this vehicle.\n"; return;
     }
-
-    int daysLeft = daysBetween(today, apps[activeAppIdx].expiryDate); 
+ 
+    int daysLeft = daysBetween(today, apps[activeAppIdx].expiryDate);
     if (daysLeft > 20) {
-        cout << " Your pass still has" << daysLeft << "days remaining.\n";
-        cout << " Extensions is only avaiable when 20 or fewer days remains. \n";
+        cout << "  Your pass still has " << daysLeft << " days remaining.\n";
+        cout << "  Extension is only available when 20 or fewer days remain.\n";
         return;
     }
-
-    string maxExpiry = calcExpiryNewPass(today, 6);
-    int monthsLeft = 0;
-    {
-        int year1 = stoi(today.substr(0,4)), month1 = stoi(today.substr(5,2));
-        int year2 = stoi(maxExpiry.substr(0,4)), month2 = stoi(maxExpiry.substr(5,2));
-        monthsLeft = (year2 - year1) * 12 + (month2 - month1);
-    }
-    int maxExtend = 3 - monthsLeft;
-    if (maxExtend <= 0) {
-        cout << " Pass already covers 3 months from today -- cannot extend further.\n";
+ 
+    // FIX 5: correct 6-month cap calculation.
+    // monthsAlreadyCovered = months from today to the current expiry.
+    // maxCanAdd = how many more months can be added before hitting the 6-month cap.
+    int expiryYr = stoi(apps[activeAppIdx].expiryDate.substr(0, 4));
+    int expiryMo = stoi(apps[activeAppIdx].expiryDate.substr(5, 2));
+    int todayYr  = stoi(today.substr(0, 4));
+    int todayMo  = stoi(today.substr(5, 2));
+    int monthsAlreadyCovered = (expiryYr - todayYr) * 12 + (expiryMo - todayMo);
+ 
+    int maxCanAdd = 6 - monthsAlreadyCovered;   // cap at 6 months total from today
+    if (maxCanAdd > 3) maxCanAdd = 3;            // cap at 3 per transaction
+    if (maxCanAdd <= 0) {
+        cout << "  Pass already covers " << monthsAlreadyCovered
+             << " month(s) from today — cannot extend further (6-month cap).\n";
         return;
     }
-    if (maxExtend > 3) {
-        maxExtend = 3; // cap at 3 months max extension
-    }
-
-    cout << "\n Current expiry: " << apps[activeAppIdx].expiryDate << "\n";
-    cout << " Max you can add: " << maxExtend << " month(s) (capped at 3 months total from today)\n";
+ 
+    cout << "\n  Current expiry     : " << apps[activeAppIdx].expiryDate << "\n";
+    cout << "  Days remaining     : " << daysLeft << "\n";
+    cout << "  Max you can add    : " << maxCanAdd << " month(s)"
+         << " (6-month total cap from today)\n";
     printLine();
-    cout << "Months to extend (1-" << maxExtend << "): ";
-    int addMonths = safeInputInt(1, maxExtend);
-
+    cout << "  Months to extend (1-" << maxCanAdd << "): ";
+    int addMonths = safeInputInt(1, maxCanAdd);
+ 
     string newExpiry = addMonthsToExpiry(apps[activeAppIdx].expiryDate, addMonths);
-    double cost = addMonths * 30.0;
-
-    cout << "\n New expiry: " << newExpiry << "\n";
-    cout << " Cost   : RM" << fixed << setprecision(2) << cost << "\n";
-
+    double cost      = addMonths * 30.0;
+ 
+    cout << "\n  New expiry : " << newExpiry << "\n";
+    cout << "  Cost       : RM " << fixed << setprecision(2) << cost << "\n";
+ 
     char confirm;
-    cout << " Confirm and pay now (y/n): ";
+    cout << "  Confirm and pay now (y/n): ";
     cin >> confirm; cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    if (confirm != 'y' && confirm != 'Y') { 
-        cout << " Extension cancelled.\n"; 
-        return; 
-    }
-
+    if (confirm != 'y' && confirm != 'Y') { cout << "  Extension cancelled.\n"; return; }
+ 
+    // Update the existing pass record in-place
     apps[activeAppIdx].expiryDate = newExpiry;
     apps[activeAppIdx].months += addMonths;
     saveApplicationsToFile();
-
-    cout << " Pass extended successfully! New expiry: " << newExpiry << "\n";
+ 
+    cout << "  Pass extended successfully!\n";
+    cout << "  New expiry: " << newExpiry << "\n";
 }
+ 
 // ============================================================
 // STUDENT PROFILE
 // ============================================================
@@ -1478,7 +1483,7 @@ void statisticsUsage(int index_Admin) {
     cout << "  Date : " << getCurrentDate() << "\n\n";
 
     int total    = appsCount;
-    int approved = 0, rejected = 0, pending = 0, paid = 0, expired = 0;
+    int approved = 0, rejected = 0, pending = 0, paid = 0, expired = 0, application = 0;
     int durationCount[4] = {0};
 
     int facApps[FAC_COUNT]     = {0};
@@ -1521,6 +1526,7 @@ void statisticsUsage(int index_Admin) {
     }
 
     int activeNow = paid + approved;
+    int parkingRate = 600 / activeNow; 
     double utilRate = studentCount > 0 ? (double)activeNow / studentCount * 100.0 : 0.0;
 
     printLine();
@@ -1534,6 +1540,7 @@ void statisticsUsage(int index_Admin) {
     cout << "  Pending              : " << pending      << "\n";
     cout << "  Expired              : " << expired      << "\n";
     cout << "  Utilisation rate     : " << fixed << setprecision(1) << utilRate << "%\n";
+    cout << "  Parking spaces rate  : " << fixed << setprecision(2) << parkingRate   << "%\n";
 
     // Faculty breakdown — full name on line 1, numbers on line 2
     int peakFac = 0;
@@ -1561,9 +1568,9 @@ void statisticsUsage(int index_Admin) {
 
     cout << "\n  FACULTY APPLICATION CHART\n"; printLine();
     for (int f = 0; f < FAC_COUNT; f++) {
-        string lbl = FAC_LABELS[f];
-        if ((int)lbl.size() > 35) lbl = lbl.substr(0, 32) + "...";
-        cout << "  " << left << setw(36) << lbl << " : ";
+        string label = FAC_LABELS[f];
+        if ((int)label.size() > 35) label = label.substr(0, 32) + "...";
+        cout << "  " << left << setw(36) << label << " : ";
         for (int j = 0; j < facApps[f] && j < 30; j++) cout << "#";
         if (facApps[f] > 30) cout << "+";
         cout << "  (" << facApps[f] << ")\n";
