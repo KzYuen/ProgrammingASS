@@ -1388,7 +1388,10 @@ void viewProfileAdmin(int index_Admin) {
     cout << "  Email    : " << admins[index_Admin].email   << "\n";
     cout << "  Phone    : " << admins[index_Admin].phone   << "\n\n";
 
-    bool found = false;
+    int pendingMapping[400];
+    int pendingCount = 0;
+
+    //bool found = false;
     cout << "  " << left << setw(7) << "Index" << setw(9) << "StudID"
          << setw(12) << "Vehicle" << setw(12) << "Faculty"
          << setw(12) << "Date"   << setw(7) << "Mths"
@@ -1397,10 +1400,13 @@ void viewProfileAdmin(int index_Admin) {
 
     for (int i = 0; i < appsCount; i++) {
         if (apps[i].status != "pending") continue;
-        found = true;
+        //found = true;
+        pendingMapping[pendingCount] = i;
+
         int vi = findVehicleIndexByID(apps[i].vehicleID);
         string plate = (vi != -1) ? vehicles[vi].plate : apps[i].vehicleID;
         string currExpiry = "-";
+
         if (isRenewalApp(i)) {
             for (int k = i - 1; k >= 0; k--) {
                 if (apps[k].vehicleID == apps[i].vehicleID &&
@@ -1411,7 +1417,7 @@ void viewProfileAdmin(int index_Admin) {
                 }
             }
         }
-        cout << "  " << left << setw(7) << i
+        cout << "  " << left << setw(7) << pendingCount 
              << setw(9)  << apps[i].studentID
              << setw(12) << plate
              << setw(12) << apps[i].faculty
@@ -1419,16 +1425,26 @@ void viewProfileAdmin(int index_Admin) {
              << setw(7)  << apps[i].months
              << setw(12) << currExpiry
              << (isRenewalApp(i) ? "Renewal" : "New") << "\n";
+        
+        pendingCount++;
     }
 
-    if (!found) { cout << "  No pending applications.\n"; return; }
+    if (pendingCount == 0) { 
+        cout << "  No pending applications.\n"; 
+        return; 
+    }
 
     cout << "\n  Enter index to process (-1 to cancel): ";
-    int choice = safeInputInt(-1, appsCount - 1);
+    int choice = safeInputInt(-1, pendingCount - 1);
     if (choice == -1) return;
 
-    if (choice >= 0 && choice < appsCount) {
-        if (apps[choice].status == "pending") approveRejectApplication(choice);
+    if (choice >= 0 && choice < pendingCount) {
+        int realIndex = pendingMapping[choice];
+
+        if (apps[pendingMapping[choice]].status == "pending"){ 
+            approveRejectApplication(realIndex);
+            //approveRejectApplication(pendingMapping[choice]);
+        }
         else cout << "  Already processed.\n";
     } else {
         cout << "  Invalid index.\n";
@@ -1588,7 +1604,11 @@ void statisticsUsage(int index_Admin) {
     printLine();
     cout << "  MONTHLY APPLICATION TREND (last 12 months)\n"; printLine();
     int maxBar = 1;
-    for (int m = 0; m < 12; m++) if (monthApps[m] > maxBar) maxBar = monthApps[m];
+    for (int m = 0; m < 12; m++) {
+        if (monthApps[m] > maxBar) { 
+            maxBar = monthApps[m];
+        }
+    }
     for (int m = 0; m < 12; m++) {
         int bar = (monthApps[m] * 30) / maxBar;
         cout << "  " << mLabels[m] << " ";
