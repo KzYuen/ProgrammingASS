@@ -1,1 +1,15 @@
-S1|Ahmad Ziklifri|2301001@student.edu.my|LKC FES|012-345-1001|Allmightyright2020#|0
+S1|Ahmad Zikri|2301001@student.edu.my|MKF FMHS|012-345 1001|Allmightyright2020#|0
+S2|Tan Mei Ling|2301002@student.edu.my|MKF FMHS|017-890 1002|Allmightyright2020#|0
+S3|Siti Nurhaliza|2301003@student.edu.my|IMLD|019-456 1003|Allmightyright2020#|0
+S4|Kevin Raj|2301004@student.edu.my|IPSR|011-1234 1004|Allmightyright2020#|0
+S5|Lim Wei Jian|2301005@student.edu.my|CCCD|016-789 1005|Allmightyright2020#|0
+S6|Nurul Huda|2301006@student.edu.my|FAM|013-234 1006|Allmightyright2020#|0
+S7|Chong Kah Yan|2301007@student.edu.my|FCS|018-567 1007|Allmightyright2020#|0
+S8|Muhammad Faiz|2301008@student.edu.my|FOE|012-890 1008|Allmightyright2020#|0
+S9|Priya d/o Subramaniam|2301009@student.edu.my|CFS|017-345 1009|Allmightyright2020#|0
+S10|Wong Zi Hao|2301010@student.edu.my|FCI|019-678 1010|Allmightyright2020#|0
+S11|Amirul Amin|2301011@student.edu.my|LKC FES|011-5678 1011|Allmightyright2020#|0
+S12|Chloe Chen Xin Yi|2301012@student.edu.my|IMLD|016-234 1012|Allmightyright2020#|0
+S13|Farah Nabila|2301013@student.edu.my|IPSR|013-890 1013|Allmightyright2020#|0
+S14|Lee Jun Hui|2301014@student.edu.my|IPSR|018-123 1014|Allmightyright2020#|0
+S15|Darren Yeoh|2301015@student.edu.my|CCCD|012-678 1015|Allmightyright2020#|0

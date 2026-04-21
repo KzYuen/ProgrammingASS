@@ -119,6 +119,7 @@ int  findVehicleIndexByID(string vehicleID);
 
 void registerApplication(int index_Student);
 void renewApplication(int index_Student);
+void extendApplication(int index_Student);
 void viewApplicationHistory(int index_Student);
 
 void viewStudentProfile(int index_Student);
@@ -238,12 +239,22 @@ string lastDayOfMonth(int year, int month) {
 
 // Last day of (applyMonth + months - 1).
 // e.g. "2026-04" + 3 months → covers Apr/May/Jun → "2026-06-30"
-string calcExpiryNewPass(string applyMonth, int months) {
-    int yr = stoi(applyMonth.substr(0, 4));
-    int mo = stoi(applyMonth.substr(5, 2));
-    mo += months - 1;
+string calcExpiryNewPass(string applyDate, int months) {
+    int yr = stoi(applyDate.substr(0, 4));
+    int mo = stoi(applyDate.substr(5, 2));
+    int day = stoi(applyDate.substr(8, 2));
+
+    mo += months;
     while (mo > 12) { mo -= 12; yr++; }
-    return lastDayOfMonth(yr, mo);
+    
+    int maxDay = daysInMonth(yr, mo);
+    if( day > maxDay) {
+        day = maxDay;  // e.g. applying on Jan 31 for 1 month → expiry should be Feb 28/29, not Mar 3
+    }
+
+    char buf[11];
+    sprintf(buf, "%04d-%02d-%02d", yr, mo, day);
+    return string(buf);
 }
 
 // Extend existing expiry by N months.
@@ -251,9 +262,19 @@ string calcExpiryNewPass(string applyMonth, int months) {
 string addMonthsToExpiry(string expiryDate, int months) {
     int yr = stoi(expiryDate.substr(0, 4));
     int mo = stoi(expiryDate.substr(5, 2));
+    int day = stoi(expiryDate.substr(8, 2));
+
     mo += months;
     while (mo > 12) { mo -= 12; yr++; }
-    return lastDayOfMonth(yr, mo);
+    
+    int maxDay = daysInMonth(yr, mo);
+    if( day > maxDay) {
+        day = maxDay;  // e.g. extending Apr 30 by 1 month → expiry should be May 31, not June 2
+    }
+
+    char buf[11];
+    sprintf(buf, "%04d-%02d-%02d", yr, mo, day);
+    return string(buf);
 }
 
 // Positive = toDate is in the future.
@@ -465,7 +486,7 @@ void loadApplicationsFromFile() {
 
                 // Derive expiryDate for old records that don't have it
                 if (temp.expiryDate.empty() && !temp.applyMonth.empty()) {
-                    temp.expiryDate = calcExpiryNewPass(temp.applyMonth, temp.months);
+                    temp.expiryDate = calcExpiryNewPass(temp.applyDate, temp.months);
                 }
 
                 // Normalise paymentStatus in case field was empty
@@ -508,7 +529,7 @@ void loadApplicationsFromFile() {
                     if (temp2.status == "paid") temp2.status = "approved";
 
                     if (!temp2.applyMonth.empty())
-                        temp2.expiryDate = calcExpiryNewPass(temp2.applyMonth, temp2.months);
+                        temp2.expiryDate = calcExpiryNewPass(temp2.applyDate, temp2.months);
 
                     for (int i = 0; i < FAC_COUNT; i++) {
                         if (FAC_CODES[i] == temp2.faculty) {
@@ -871,7 +892,7 @@ void registerApplication(int index_Student) {
 
     cout << "  Months (1-3): ";
     APP.months     = safeInputInt(1, 3);
-    APP.expiryDate = calcExpiryNewPass(APP.applyMonth, APP.months);
+    APP.expiryDate = calcExpiryNewPass(APP.applyDate, APP.months);
 
     cout << "  Estimated cost  : RM " << fixed << setprecision(2) << (APP.months * 30.0) << "\n";
     cout << "  Pass valid until: " << APP.expiryDate << " (after approval & payment)\n";
@@ -882,7 +903,7 @@ void registerApplication(int index_Student) {
 }
 
 // ============================================================
-// APPLICATION — RENEWAL
+// APPLICATION — RENEWAL AND EXTENSION
 // ============================================================
 /*
 expiryDate is set at PAYMENT time (not submission) because we need to know
@@ -987,7 +1008,7 @@ void renewApplication(int index_Student) {
              << " (extending from current expiry)\n";
     } else {
         cout << "  Projected new expiry: "
-             << calcExpiryNewPass(getCurrentMonth(), renewal.months)
+             << calcExpiryNewPass(today, renewal.months)
              << " (starting from today)\n";
     }
 
@@ -997,6 +1018,114 @@ void renewApplication(int index_Student) {
     cout << "  Your current pass stays active until you pay for this renewal.\n";
 }
 
+void extendApplication(int index_Student) { 
+    printHeader("Extend Current Pass");
+    string studentID = students[index_Student].id;
+    string today     = getCurrentDate();
+    
+    int idx[20], eligIdx[20]; int eligCount = 0;
+    int vehicleCount = getVehiclesForStudent(studentID, idx, 0);
+    if (vehicleCount == 0) { 
+        cout << "  No vehicles registered.\n"; 
+        return; 
+    }
+    for (int i = 0; i < vehicleCount; i++) {
+        if (hasActivePaidPassForVehicle(vehicles[idx[i]].vehicleID)) {
+            eligIdx[eligCount++] = idx[i];
+        }
+        if (eligCount == 0) {
+            cout << "  No active passes to extend. Use Renew Pass for expired passes.\n";
+            return;
+        }
+    }
+    cout << "  Select vehicle to extend:\n"; 
+    printLine();
+    for (int i = 0; i < eligCount; i++) {
+        vehicle& v = vehicles[eligIdx[i]];
+        cout << "  " << (i + 1) << ". " << v.plate << " (" << v.type << ")\n";
+
+        string expiry = "";
+        for(int j = appsCount - 1; j >= 0; j--) {
+            if (apps[j].vehicleID == v.vehicleID &&
+                apps[j].paymentStatus == "paid"  &&
+                apps[j].status != "expired") {
+                expiry = apps[j].expiryDate; 
+                break;
+            }
+        } 
+        int daysLeft = expiry.empty() ? -1 : daysBetween(today, expiry);
+        cout << " " << (i+1) << ". " << v.plate << " (" << v.type << ")" << " Expires: " << expiry << " (" <<  daysLeft << " days left)\n";
+    }
+    printLine();
+
+    cout << " Pick (1-" << eligCount << ", 0 to cancel): ";
+    int pick = safeInputInt(0, eligCount);
+    if (pick == 0) return;
+
+    vehicle& chosen = vehicles[eligIdx[pick - 1]];
+
+    int activeAppIdx = -1;
+    for(int i = appsCount - 1; i >= 0; i--) {
+        if (apps[i].vehicleID == chosen.vehicleID &&
+            apps[i].paymentStatus == "paid"  &&
+            apps[i].status != "expired") {
+            activeAppIdx = i; break;
+        }
+    }
+    if (activeAppIdx == -1) {
+        cout << "  No active pass found for this vehicle.\n"; 
+        return;
+    }
+
+    int daysLeft = daysBetween(today, apps[activeAppIdx].expiryDate); 
+    if (daysLeft > 20) {
+        cout << " Your pass still has" << daysLeft << "days remaining.\n";
+        cout << " Extensions is only avaiable when 20 or fewer days remains. \n";
+        return;
+    }
+
+    string maxExpiry = calcExpiryNewPass(today, 6);
+    int monthsLeft = 0;
+    {
+        int year1 = stoi(today.substr(0,4)), month1 = stoi(today.substr(5,2));
+        int year2 = stoi(maxExpiry.substr(0,4)), month2 = stoi(maxExpiry.substr(5,2));
+        monthsLeft = (year2 - year1) * 12 + (month2 - month1);
+    }
+    int maxExtend = 3 - monthsLeft;
+    if (maxExtend <= 0) {
+        cout << " Pass already covers 3 months from today -- cannot extend further.\n";
+        return;
+    }
+    if (maxExtend > 3) {
+        maxExtend = 3; // cap at 3 months max extension
+    }
+
+    cout << "\n Current expiry: " << apps[activeAppIdx].expiryDate << "\n";
+    cout << " Max you can add: " << maxExtend << " month(s) (capped at 3 months total from today)\n";
+    printLine();
+    cout << "Months to extend (1-" << maxExtend << "): ";
+    int addMonths = safeInputInt(1, maxExtend);
+
+    string newExpiry = addMonthsToExpiry(apps[activeAppIdx].expiryDate, addMonths);
+    double cost = addMonths * 30.0;
+
+    cout << "\n New expiry: " << newExpiry << "\n";
+    cout << " Cost   : RM" << fixed << setprecision(2) << cost << "\n";
+
+    char confirm;
+    cout << " Confirm and pay now (y/n): ";
+    cin >> confirm; cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    if (confirm != 'y' && confirm != 'Y') { 
+        cout << " Extension cancelled.\n"; 
+        return; 
+    }
+
+    apps[activeAppIdx].expiryDate = newExpiry;
+    apps[activeAppIdx].months += addMonths;
+    saveApplicationsToFile();
+
+    cout << " Pass extended successfully! New expiry: " << newExpiry << "\n";
+}
 // ============================================================
 // STUDENT PROFILE
 // ============================================================
@@ -1152,7 +1281,7 @@ void viewApplicationHistory(int index_Student) {
                     if (!baseExpiry.empty() && baseExpiry >= today)
                         apps[i].expiryDate = addMonthsToExpiry(baseExpiry, apps[i].months);
                     else
-                        apps[i].expiryDate = calcExpiryNewPass(getCurrentMonth(), apps[i].months);
+                        apps[i].expiryDate = calcExpiryNewPass(today, apps[i].months);
 
                     // Mark the old paid pass as expired (superseded) — only NOW, not at approval
                     for (int k = 0; k < appsCount; k++) {
@@ -1796,18 +1925,20 @@ void studentMenu(int index_Student) {
         cout << "  3. Manage Vehicles\n";
         cout << "  4. New Application\n";
         cout << "  5. Renew Pass\n";
-        cout << "  6. My Transactions & Analytics\n";
-        cout << "  7. Logout\n";
+        cout << "  6. Extend Pass\n";
+        cout << "  7. My Transactions & Analytics\n";
+        cout << "  8. Logout\n";
         printLine();
         cout << "  Choice: ";
-        int choice = safeInputInt(1, 7);
+        int choice = safeInputInt(1, 8);
         if      (choice == 1) viewStudentProfile(index_Student);
         else if (choice == 2) updateStudentProfile(index_Student);
         else if (choice == 3) manageVehicles(index_Student);
         else if (choice == 4) registerApplication(index_Student);
         else if (choice == 5) renewApplication(index_Student);
-        else if (choice == 6) viewApplicationHistory(index_Student);
-        else if (choice == 7) { cout << "  Logging out...\n"; break; }
+        else if (choice == 6) extendApplication(index_Student);
+        else if (choice == 7) viewApplicationHistory(index_Student);
+        else if (choice == 8) { cout << "  Logging out...\n"; break; }
     }
 }
 
