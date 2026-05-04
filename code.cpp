@@ -799,8 +799,7 @@ void viewVehicles(string studentID) {
             }
         }
         cout << "  " << left << setw(10) << v.vehicleID << setw(16) << v.plate
-                              << setw(14) << v.type << setw(10) << (active ? "Active" : "None")
-                              << exp << "\n";
+                              << setw(14) << v.type << setw(10) << (active ? "Active" : "None") << exp << "\n";
     }
 }
 
@@ -879,8 +878,8 @@ void registerApplication(int index_Student) {
 /*
 expiryDate is set at PAYMENT time (not submission) because we need to know
 whether the old pass is still active at the moment the student pays:
-  - Old pass still active → addMonthsToExpiry(oldExpiry, months)  [extension]
-  - Old pass already lapsed → calcExpiryNewPass(currentMonth, months) [fresh start]
+  - Old pass still active - addMonthsToExpiry(oldExpiry, months)  [extension]
+  - Old pass already lapsed - calcExpiryNewPass(currentMonth, months) [fresh start]
 The old pass is only superseded (marked expired) at payment — not at approval —
 so the student keeps full access between approval and payment.
 */
