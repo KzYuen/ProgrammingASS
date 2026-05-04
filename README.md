@@ -1,2 +1,2 @@
 # ProgrammingASS
-programmingniggadoitletsgofinishasap
+programmingitletsgofinishasap
