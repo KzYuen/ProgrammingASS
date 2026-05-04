@@ -160,7 +160,7 @@ string calcExpiryNewPass(string applyMonth, int months);
 string addMonthsToExpiry(string expiryDate, int months);
 int daysBetween(string fromDate, string toDate);
 
-void printLine(char c = '-', int n = 60);
+void printLine(char c = '-', int n = 70);
 void printHeader(string title);
 void buildMonthLabels(string labels[], int count);
 
